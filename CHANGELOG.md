@@ -17,6 +17,11 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Pin supply-chain floating tags: jshook `@0.3.4`, pentestswarm `v0.1.0`
 - Bootstrap integrity: GitHub zip/jar downloads verify `assetSha256` (manifest) or GitHub API `digest`; mismatch deletes file and fails
 - Pin jadx `v1.5.6` and apktool `v3.0.2` with published SHA256
+- Remove shell evaluation from Kali user-home resolution and pass Frida hosts through argument arrays
+- Write the Burp MCP token atomically with owner-only permissions on POSIX filesystems
+- Reconnect the Burp MCP bridge when Burp starts after the bridge and parse one stdio message per line
+- Enable authentication for bootstrapped Anything Analyzer MCP servers and register the bearer token with supported clients
+- Stop each stale IDA MCP process individually before starting a replacement
 
 
 ### Added

@@ -352,13 +352,18 @@ Whether you use Claude Code, Codex CLI, Cursor, Cline, Windsurf, or another code
 ```json
 {
   "mcpServers": {
-    "anything-analyzer": { "url": "http://localhost:23816/mcp" },
+    "anything-analyzer": {
+      "url": "http://localhost:23816/mcp",
+      "headers": { "Authorization": "Bearer <token from local mcp-server-config.json>" }
+    },
     "idapro": { "url": "http://127.0.0.1:13337/mcp" },
     "jshook": { "command": "npx", "args": ["-y", "@jshookmcp/jshook@0.3.4"], "env": { "JSHOOK_BASE_PROFILE": "search" } },
     "burpsuite": { "command": "node", "args": ["<package root>/burp-mcp-full/mcp-bridge.js"] }
   }
 }
 ```
+
+The bootstrap command enables bearer authentication for Anything Analyzer and registers the generated token for supported clients. Manual configurations must include the `Authorization` header shown above.
 
 ### Minimum Prompt Requirements
 
