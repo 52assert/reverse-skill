@@ -276,10 +276,16 @@ function handleRequest(msg) {
       return null; // No response needed
 
     case 'tools/list':
+      if (!TOOLS) {
+        try { TOOLS = await fetchTools(); } catch (e) {}
+      }
       if (!TOOLS) return { jsonrpc: '2.0', id, error: { code: -32000, message: `Burp MCP not connected at ${BURP_HOST}:${BURP_PORT}. Start Burp with the "MCP Full Control" extension loaded, then reconnect.` } };
       return { jsonrpc: '2.0', id, result: { tools: buildToolDefinitions(TOOLS) } };
 
     case 'tools/call': {
+      if (!TOOLS) {
+        try { TOOLS = await fetchTools(); } catch (e) {}
+      }
       if (!TOOLS) return { jsonrpc: '2.0', id, error: { code: -32000, message: `Burp MCP not connected at ${BURP_HOST}:${BURP_PORT}. Start Burp with the "MCP Full Control" extension loaded, then reconnect.` } };
       const toolName = params.name.replace(/^burp_/, '');
       const toolArgs = params.arguments || {};

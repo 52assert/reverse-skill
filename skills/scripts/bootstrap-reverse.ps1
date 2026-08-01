@@ -181,11 +181,15 @@ function Get-AnythingAnalyzerUserDataPaths {
 function Ensure-AnythingAnalyzerMcpConfig {
     param([int]$Port = 23816)
 
+    $tokenBytes = New-Object byte[] 32
+    (New-Object Security.Cryptography.RNGCryptoServiceProvider).GetBytes($tokenBytes)
+    $generatedToken = [Convert]::ToBase64String($tokenBytes)
+
     $payload = [ordered]@{
-        enabled = $true
-        port = $Port
-        authEnabled = $false
-        authToken = ''
+        enabled     = $true
+        port        = $Port
+        authEnabled = $true
+        authToken   = $generatedToken
     }
 
     foreach ($userDataPath in Get-AnythingAnalyzerUserDataPaths) {

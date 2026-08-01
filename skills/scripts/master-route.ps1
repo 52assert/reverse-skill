@@ -150,14 +150,28 @@ if ($t -match 'reverse|逆向' -and $t -notmatch 'apk|js.?reverse|ios|mobile|\.n
 
 $notes = New-Object System.Collections.Generic.List[string]
 
-$uniq = New-Object System.Collections.Generic.List[string]
-foreach ($d in $sel) { if (-not $uniq.Contains($d)) { [void]$uniq.Add($d) } }
+$scores = [ordered]@{}
+foreach ($item in $sel) {
+    if (-not $scores.Contains($item)) { $scores[$item] = 0 }
+    $scores[$item] = $scores[$item] + 1
+}
 
-# priority high -> low (all R0-R38 must appear)
+$uniq = New-Object System.Collections.Generic.List[string]
+foreach ($d in $scores.Keys) { [void]$uniq.Add($d) }
+
+# priority high -> low (all R0-R39 must appear)
 $priority = @('R4','R1','R2','R3','R30','R31','R33','R5','R9','R21','R22','R6','R7','R8','R34','R28','R17','R16','R18','R24','R37','R23','R35','R25','R36','R29','R38','R32','R26','R27','R10','R11','R12','R13','R14','R15','R19','R20','R39','R0')
 $primary = $null
+$maxScore = -1
+
 foreach ($p in $priority) {
-    if ($uniq.Contains($p)) { $primary = $p; break }
+    if ($scores.Contains($p)) {
+        $score = $scores[$p]
+        if ($score -gt $maxScore) {
+            $maxScore = $score
+            $primary = $p
+        }
+    }
 }
 
 $confidence = 'low'
