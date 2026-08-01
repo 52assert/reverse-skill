@@ -41,7 +41,8 @@ AI Community: https://linux.do
 7. **Ops gate (MUST):** `powershell -File skills/scripts/case-init.ps1 -Hint "<task>"` (or hand-write `work/<case>/scope.md` per `skills/ops/scope-contract.md`).  
    Set `auth.status=granted` + `network_profile` before any target ACT. Evidence chain: `skills/ops/evidence-finding-path.md`. Roles: `skills/ops/role-map.md`. Identity: `skills/ops/IDENTITY.md`.
 8. Open PRIMARY SKILL.md → execute ACTION REQUIRED. Append timeline/workitems under the case dir.
-9. Continue the behavior chain → report via docs-generator + field-journal.
+9. Before report handoff, run `python3 skills/case-review/scripts/review_case.py work/<case> --verify-hashes --strict` and resolve every error.
+10. Continue the behavior chain → report via docs-generator + field-journal.
 ```
 
 ### Platform deployment routing table

@@ -91,7 +91,8 @@ $cases = @(
     @{ Name = 'llm'; Hint = 'LLM prompt inject jailbreak agent security garak'; Expect = 'llm-security' },
     @{ Name = 'zh-apk'; Hint = '安卓 APK 加固 反编译'; Expect = 'apk-reverse' },
     @{ Name = 'zh-pentest'; Hint = '渗透测试 端口扫描 SQL注入'; Expect = 'pentest-tools' },
-    @{ Name = 'zh-js'; Hint = '前端签名 JS逆向 加密参数'; Expect = 'js-reverse' }
+    @{ Name = 'zh-js'; Hint = '前端签名 JS逆向 加密参数'; Expect = 'js-reverse' },
+    @{ Name = 'evidence'; Hint = 'case review evidence chain traceability'; Expect = 'case-review' }
 )
 $routeOk = 0
 $routeFail = 0

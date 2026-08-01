@@ -37,6 +37,8 @@ $opsFiles = @(
     'MASTER-ROUTING.md',
     'scripts\master-route.ps1',
     'scripts\case-init.ps1',
+    'case-review\SKILL.md',
+    'case-review\scripts\review_case.py',
     'docs-generator\references\security-report-templates.md',
     'field-journal\_template.md'
 )
@@ -122,6 +124,7 @@ Assert-Fields (Join-Path $skillsRoot 'reverse-engineering\references\re-agent-wo
 Assert-Fields (Join-Path $skillsRoot 'pentest-tools\references\recon-pipeline.md') @('auth.status', 'network_profile', 'Evidence', 'nuclei')
 Assert-Fields (Join-Path $skillsRoot 'docs-generator\references\security-report-templates.md') @('Evidence Chain', 'Findings', 'Path')
 Assert-Fields (Join-Path $skillsRoot 'field-journal\_template.md') @('Scope', 'Evidence', 'Finding')
+Assert-Fields (Join-Path $skillsRoot 'case-review\SKILL.md') @('ACTION REQUIRED', 'review_case.py', 'Evidence Graph Review')
 $fieldLog | Set-Content -LiteralPath (Join-Path $ScratchDir 'template-fields.txt') -Encoding UTF8
 
 # --- role map skills exist for primary rows ---
@@ -154,7 +157,8 @@ $cases = @(
     @{ N = 'db'; H = 'database security mysql postgres redis'; Id = 'R35'; Sub = 'database-security/SKILL.md' },
     @{ N = 'email'; H = 'phishing spf dkim dmarc email security'; Id = 'R36'; Sub = 'email-security/SKILL.md' },
     @{ N = 'sso'; H = 'saml oidc sso federation'; Id = 'R37'; Sub = 'identity-federation/SKILL.md' },
-    @{ N = 'sdr'; H = 'sdr hackrf gnu radio rf'; Id = 'R38'; Sub = 'radio-sdr/SKILL.md' }
+    @{ N = 'sdr'; H = 'sdr hackrf gnu radio rf'; Id = 'R38'; Sub = 'radio-sdr/SKILL.md' },
+    @{ N = 'evidence'; H = 'case review evidence chain traceability'; Id = 'R40'; Sub = 'case-review/SKILL.md' }
 )
 foreach ($c in $cases) {
     $out = Join-Path $ScratchDir ("route-{0}" -f $c.N)

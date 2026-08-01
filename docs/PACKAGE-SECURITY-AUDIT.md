@@ -95,6 +95,7 @@ skills/radare2/scripts/*
 skills/ida-reverse/scripts/*
 skills/browser-automation/scripts/*
 skills/diagram-generator/scripts/*.py
+skills/case-review/scripts/*.py
 kali/scripts/*
 burp-mcp-full/mcp-bridge.js (+ Java 扩展源)
 ```
