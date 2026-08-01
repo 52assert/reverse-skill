@@ -64,7 +64,7 @@ if not exist %LIB%\nanohttpd.jar   curl -sL -o %LIB%\nanohttpd.jar   "https://re
 
 echo [2/4] Compiling...
 if not exist %OUT% mkdir %OUT%
-"%JAVAC%" --release 21 -cp "%LIB%\montoya-api.jar;%LIB%\gson.jar;%LIB%\nanohttpd.jar" -d %OUT% %SRC%\*.java
+"%JAVAC%" --release 21 -encoding UTF-8 -cp "%LIB%\montoya-api.jar;%LIB%\gson.jar;%LIB%\nanohttpd.jar" -d %OUT% %SRC%\*.java
 if errorlevel 1 (
     echo COMPILE FAILED
     exit /b 1

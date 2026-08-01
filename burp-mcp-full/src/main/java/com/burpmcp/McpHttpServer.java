@@ -28,6 +28,11 @@ import burp.api.montoya.http.sessions.*;
 import burp.api.montoya.websocket.extension.ExtensionWebSocket;
 import java.time.ZonedDateTime;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -36,6 +41,7 @@ import java.util.stream.Collectors;
 public class McpHttpServer extends NanoHTTPD {
     private final MontoyaApi api;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final String authToken;
     private CollaboratorClient collaborator;
     private volatile Audit activeAudit = null;
     private volatile Crawl activeCrawl = null;
@@ -43,12 +49,43 @@ public class McpHttpServer extends NanoHTTPD {
     public McpHttpServer(MontoyaApi api, int port) {
         super("127.0.0.1", port);
         this.api = api;
+        this.authToken = resolveAuthToken();
+    }
+
+    private String resolveAuthToken() {
+        String token = System.getProperty("burp.mcp.token");
+        if (token == null || token.isBlank()) {
+            token = System.getenv("BURP_MCP_TOKEN");
+        }
+        if (token == null || token.isBlank()) {
+            byte[] bytes = new byte[32];
+            new SecureRandom().nextBytes(bytes);
+            StringBuilder sb = new StringBuilder();
+            for (byte b : bytes) sb.append(String.format("%02x", b));
+            token = sb.toString();
+        }
+        token = token.trim();
+        try {
+            Path tokenFile = Paths.get(System.getProperty("user.home"), ".burp-mcp-token");
+            Files.write(tokenFile, token.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException ignored) { }
+        return token;
+    }
+
+    private boolean isAuthorized(IHTTPSession session) {
+        String auth = session.getHeaders().get("authorization");
+        return auth != null && auth.equals("Bearer " + authToken);
     }
 
     @Override
     public Response serve(IHTTPSession session) {
         if (Method.OPTIONS.equals(session.getMethod())) {
             Response resp = newFixedLengthResponse(Response.Status.OK, "text/plain", "");
+            addCorsHeaders(resp); return resp;
+        }
+        if (!isAuthorized(session)) {
+            Response resp = newFixedLengthResponse(Response.Status.FORBIDDEN, "application/json",
+                    "{\"error\":\"unauthorized: missing or invalid Authorization: Bearer <token> header. Token is in ~/.burp-mcp-token (or set -Dburp.mcp.token / BURP_MCP_TOKEN).\"}");
             addCorsHeaders(resp); return resp;
         }
         if (Method.GET.equals(session.getMethod()) && "/health".equals(session.getUri())) {
@@ -447,7 +484,8 @@ public class McpHttpServer extends NanoHTTPD {
 
     private JsonObject interceptModify(JsonObject params) {
         JsonObject result = new JsonObject();
-        result.addProperty("info", "Use intercept_toggle to enable intercept. Modify requests via proxy_history + send_request workflow.");
+        result.addProperty("deprecated", true);
+        result.addProperty("info", "Removed from tools/list. Use intercept_toggle to enable intercept, then modify requests via proxy_history + send_request workflow.");
         return result;
     }
 
@@ -915,8 +953,8 @@ public class McpHttpServer extends NanoHTTPD {
         return result;
     }
 
-    private JsonObject proxyListeners(JsonObject params) { JsonObject r = new JsonObject(); r.addProperty("info", "Manage via Burp UI or export_config/import_config. Default: 127.0.0.1:8080"); return r; }
-    private JsonObject proxyMatchReplace(JsonObject params) { JsonObject r = new JsonObject(); r.addProperty("info", "Use export_config -> modify proxy.match_replace_rules -> import_config"); return r; }
+    private JsonObject proxyListeners(JsonObject params) { JsonObject r = new JsonObject(); r.addProperty("deprecated", true); r.addProperty("info", "Removed from tools/list. Manage via Burp UI or export_config/import_config. Default: 127.0.0.1:8080"); return r; }
+    private JsonObject proxyMatchReplace(JsonObject params) { JsonObject r = new JsonObject(); r.addProperty("deprecated", true); r.addProperty("info", "Removed from tools/list. Use export_config -> modify proxy.match_replace_rules -> import_config"); return r; }
 
     private JsonObject targetInfo(JsonObject params) {
         JsonObject result = new JsonObject();
@@ -1245,14 +1283,16 @@ public class McpHttpServer extends NanoHTTPD {
 
     private JsonObject exportCert(JsonObject params) {
         JsonObject result = new JsonObject();
-        result.addProperty("info", "Export Burp CA cert: Proxy -> Options -> Import/Export CA certificate -> Export Certificate in DER format");
+        result.addProperty("deprecated", true);
+        result.addProperty("info", "Removed from tools/list. Export Burp CA cert: Proxy -> Options -> Import/Export CA certificate -> Export Certificate in DER format");
         result.addProperty("path_hint", "Or visit http://burp/cert in browser with Burp proxy enabled");
         return result;
     }
 
     private JsonObject websocketSend(JsonObject params) {
         JsonObject result = new JsonObject();
-        result.addProperty("info", "WebSocket message sending requires an active WS connection. Use browser with Burp proxy to establish WS, then intercept/modify via Proxy -> WebSocket history.");
+        result.addProperty("deprecated", true);
+        result.addProperty("info", "Removed from tools/list. Use websocket_send_text / websocket_send_binary on an active websocket_create connection.");
         return result;
     }
 
@@ -1594,29 +1634,30 @@ public class McpHttpServer extends NanoHTTPD {
         int start=Math.max(0,auditLogEntries.size()-lim); for(int i=start;i<auditLogEntries.size();i++) items.add((String)auditLogEntries.get(i));
         r.add("entries",items); r.addProperty("total",items.size()); return r; }
     private String getToolList() {
-        return "[\"proxy_history\",\"proxy_detail\",\"proxy_websocket\",\"proxy_listeners\"," +
-               "\"proxy_match_replace\",\"proxy_clear\",\"proxy_history_filtered\"," +
+        return "[\"proxy_history\",\"proxy_detail\",\"proxy_websocket\"," +
+               "\"proxy_clear\",\"proxy_history_filtered\"," +
                "\"send_request\",\"send_to_repeater\",\"repeater_send\",\"repeater_modify_send\"," +
                "\"send_to_intruder\",\"intruder_attack\",\"intruder_attack_async\"," +
                "\"intruder_attack_wordlist\",\"intruder_pitchfork\",\"intruder_cluster_bomb\"," +
                "\"intruder_battering_ram\",\"intruder_with_options\"," +
-               "\"sitemap\",\"target_info\",\"intercept_toggle\",\"intercept_modify\",\"encode\"," +
+               "\"sitemap\",\"target_info\",\"intercept_toggle\",\"encode\"," +
                "\"decode\",\"convert_request\",\"export_request\",\"generate_csrf_poc\"," +
                "\"extract_from_response\",\"payload_process\",\"scan\",\"scan_active\"," +
                "\"scan_results\",\"scan_issue_detail\",\"crawl\",\"get_scope\",\"add_to_scope\"," +
                "\"remove_from_scope\",\"collaborator_generate\",\"collaborator_poll\"," +
                "\"search_history\",\"highlight\",\"annotate\",\"compare\",\"export_config\"," +
                "\"import_config\",\"set_upstream_proxy\",\"set_dns_override\",\"set_http2\"," +
-               "\"cookie_jar\",\"token_analysis\",\"sequencer\",\"export_cert\",\"websocket_send\"," +
+               "\"cookie_jar\",\"token_analysis\",\"sequencer\"," +
                "\"save_project\",\"burp_version\",\"add_issue\",\"register_http_handler\"," +
                "\"remove_http_handler\",\"register_proxy_rule\",\"remove_proxy_rule\"," +
                "\"extensions_list\",\"log\",\"cookie_jar_set\",\"send_request_parallel\",\"websocket_create\",\"websocket_send_text\",\"websocket_send_binary\",\"websocket_close\",\"websocket_list\",\"passive_intel\",\"session_create_rule\",\"session_list_rules\",\"session_remove_rule\",\"jwt_decode\",\"jwt_attack\",\"injection_probe\",\"access_control_sweep\",\"race_condition\",\"inline_fuzzer\",\"scope_gate\",\"privacy_mode\",\"audit_log\"]";
     }
 
     private void addCorsHeaders(Response resp) {
-        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Access-Control-Allow-Origin", "http://127.0.0.1");
         resp.addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        resp.addHeader("Access-Control-Allow-Headers", "Content-Type");
+        resp.addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        resp.addHeader("Vary", "Origin");
     }
 }
 

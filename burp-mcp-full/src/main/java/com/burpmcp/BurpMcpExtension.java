@@ -37,6 +37,7 @@ public class BurpMcpExtension implements BurpExtension {
             server.start();
             logging.logToOutput("[MCP] Server started on http://127.0.0.1:" + port);
             logging.logToOutput("[MCP] Configure port via -Dburp.mcp.port=<n> or BURP_MCP_PORT env var (default 9876)");
+            logging.logToOutput("[MCP] Auth token: ~/.burp-mcp-token (override with -Dburp.mcp.token or BURP_MCP_TOKEN)");
             logging.logToOutput("[MCP] Tools: proxy_history, send_request, intruder_attack, repeater, scanner, sitemap, intercept, encode/decode");
         } catch (Exception e) {
             logging.logToError("[MCP] Failed to start server on port " + port + ": " + e.getMessage());

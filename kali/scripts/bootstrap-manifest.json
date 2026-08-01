@@ -474,6 +474,33 @@
       "canAutoInstall": true,
       "verifyCommand": "coercer",
       "kaliNote": "Windows 认证强制工具，用于 AD 攻击中的 NTLM relay。"
+    },
+    {
+      "name": "binwalk",
+      "bootstrapKind": "apt-package",
+      "aptPackage": "binwalk",
+      "docsUrl": "https://github.com/ReFirmLabs/binwalk",
+      "canAutoInstall": true,
+      "verifyCommand": "binwalk",
+      "kaliNote": "固件分析与提取。Kali 预装，apt 可更新。"
+    },
+    {
+      "name": "yara",
+      "bootstrapKind": "apt-package",
+      "aptPackage": "yara",
+      "docsUrl": "https://virustotal.github.io/yara/",
+      "canAutoInstall": true,
+      "verifyCommand": "yara",
+      "kaliNote": "恶意软件规则匹配引擎。Kali 预装，apt 可更新。"
+    },
+    {
+      "name": "pwntools",
+      "bootstrapKind": "pip-package",
+      "pipPackage": "pwntools",
+      "docsUrl": "https://github.com/Gallopsled/pwntools",
+      "canAutoInstall": true,
+      "verifyCommand": "pwntools",
+      "kaliNote": "CTF pwn 利用开发框架。Kali 预装，pip 可更新。"
     }
   ]
 }

@@ -42,13 +42,19 @@ skills/tool-index.json
 *.dylib
 work/
 
+# 签名密钥（首次运行自动生成）
+skills/apk-reverse/debug.keystore
+*.keystore
+
 # Build artifacts
 burp-mcp-full/build/classes/
 burp-mcp-full/build/libs/
 burp-mcp-full/lib/
+burp-mcp-full/.gradle/
 *.class
 *.jar
 !burp-mcp-full/build/libs/burp-mcp-full.jar
+!burp-mcp-full/gradle/wrapper/gradle-wrapper.jar
 
 # 已弃用
 BOOTSTRAP.md

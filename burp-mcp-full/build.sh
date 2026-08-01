@@ -41,7 +41,7 @@ mkdir -p "$LIB"
 
 echo "[2/4] Compiling..."
 mkdir -p "$OUT"
-"$JAVAC" --release 21 -cp "$LIB/montoya-api.jar:$LIB/gson.jar:$LIB/nanohttpd.jar" -d "$OUT" "$SRC"/*.java
+"$JAVAC" --release 21 -encoding UTF-8 -cp "$LIB/montoya-api.jar:$LIB/gson.jar:$LIB/nanohttpd.jar" -d "$OUT" "$SRC"/*.java
 
 # Copy resources (extension descriptor) so the jar is loadable by Burp
 cp -r "$RES/META-INF" "$OUT/"
