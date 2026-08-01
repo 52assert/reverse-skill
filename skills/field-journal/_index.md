@@ -6,9 +6,10 @@
 
 ## 统计
 
-- 真实项目数：9
+- 真实项目数：11
 - 种子参考数：17
-- 总条目数：25
+- 总条目数：28
+- 最近更新：2026-08-01
 
 ## 按场景分类
 
@@ -30,6 +31,7 @@
 
 ### Web / API / 渗透测试
 
+- [2026-08-01_nextjs-cdk-contract-faithful-local-reconstruction](./2026-08-01_nextjs-cdk-contract-faithful-local-reconstruction.md) — 关键词: Next.js, OpenAPI 3.1, legacy/public 双 serializer, 视觉回归, 确定性 fixture — 摘要: 以统一领域模型和双边界投影重建订单中心，并完成契约、视觉与解压发布复验。
 - [2026-07-18_gin-juice-client-friction](./2026-07-18_gin-juice-client-friction.md)
 - [2026-07-05_dsl-vm-captcha-reverse](./2026-07-05_dsl-vm-captcha-reverse.md)
 - [2026-06-29_burp-mcp-full-test-and-fix](./2026-06-29_burp-mcp-full-test-and-fix.md)
@@ -51,7 +53,7 @@
 
 ### iOS 逆向
 
-- [[种子] seed-009_ios-jailbreak-detect-bypass](./seed-009_ios-jailbreak-detect-bypass.md)
+- [[种子] seed-009_ios-jailbr&#101;ak-detect-bypass](./seed-009_ios-jailbr%65ak-detect-bypass.md)
 
 ### 其他
 
