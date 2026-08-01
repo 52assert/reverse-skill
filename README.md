@@ -21,7 +21,7 @@
 </p>
 
 <br/>
-
+[![Trendshift](https://trendshift.io/api/badge/repositories/43969)](https://trendshift.io/repositories/43969)
 <p align="center">
   <a href="#about">About</a> ·
   <a href="#getting-started">Getting Started</a> ·
