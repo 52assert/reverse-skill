@@ -10,6 +10,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - Routing: sigma vs malware, LLM 越狱 vs iOS 越狱, 完整渗透/打到域控 vs AD 域控, forensics vs OT ics; master-route.ps1 rewritten UTF-8 BOM for PS 5.1 CJK
+- Linux/macOS bootstrap: register PentestSwarm MCP with a verified executable path after Go install or when already installed
 
 ### Security
 
