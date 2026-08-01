@@ -68,6 +68,13 @@ public class McpHttpServer extends NanoHTTPD {
         try {
             Path tokenFile = Paths.get(System.getProperty("user.home"), ".burp-mcp-token");
             Files.write(tokenFile, token.getBytes(StandardCharsets.UTF_8));
+            if (java.nio.file.FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+                java.util.Set<java.nio.file.attribute.PosixFilePermission> perms = java.util.EnumSet.of(
+                    java.nio.file.attribute.PosixFilePermission.OWNER_READ,
+                    java.nio.file.attribute.PosixFilePermission.OWNER_WRITE
+                );
+                Files.setPosixFilePermissions(tokenFile, perms);
+            }
         } catch (IOException ignored) { }
         return token;
     }
