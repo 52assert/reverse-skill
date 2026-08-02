@@ -28,7 +28,8 @@ $oc = Get-Command opencode -ErrorAction SilentlyContinue
 if ($oc) {
     Ok "opencode CLI found: $($oc.Source)"
 } else {
-    Bad 'opencode CLI not found on PATH (install from https://opencode.ai)'
+    # CI/服务器环境通常不装 opencode：WARN 不 FAIL（配置与 frontmatter 检查仍然严格）
+    Write-Host "[WARN] opencode CLI not on PATH (skip; install from https://opencode.ai to use locally)" -ForegroundColor Yellow
 }
 
 # --- 2) opencode.jsonc ---

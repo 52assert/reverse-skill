@@ -27,8 +27,11 @@ if (-not (Test-Path -LiteralPath $Benchmark)) {
 }
 $bm = Get-Content -LiteralPath $Benchmark -Raw -Encoding UTF8 | ConvertFrom-Json
 
+# $env:TEMP 在 Linux/macOS runner 上可能未设置，统一用 GetTempPath fallback
+$tmpBase = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
+
 if ([string]::IsNullOrWhiteSpace($LogDir)) {
-    $LogDir = Join-Path $env:TEMP ("rs-routing-test-{0}" -f (Get-Date -Format 'yyyyMMdd-HHmmss'))
+    $LogDir = Join-Path $tmpBase ("rs-routing-test-{0}" -f (Get-Date -Format 'yyyyMMdd-HHmmss'))
 }
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 
@@ -44,7 +47,7 @@ $detail = New-Object System.Collections.Generic.List[string]
 Write-Host ("=== test-routing | {0} cases (quick={1}) ===" -f $cases.Count, [bool]$Quick)
 
 foreach ($c in $cases) {
-    $tmp = Join-Path $env:TEMP ("rs-rt-{0}" -f [guid]::NewGuid().ToString('n'))
+    $tmp = Join-Path $tmpBase ("rs-rt-{0}" -f [guid]::NewGuid().ToString('n'))
     $got = 'ERR'
     try {
         $null = & powershell -NoProfile -ExecutionPolicy Bypass -File $masterRoute -Hint $c.hint -OutDir $tmp 2>&1

@@ -20,7 +20,7 @@ function Ok($m) { Write-Host "[OK] $m" -ForegroundColor Green }
 function Bad($m) { Write-Host "[FAIL] $m" -ForegroundColor Red; [void]$fail.Add($m) }
 
 # --- 新事实源/产物检查（routing.json / benchmark / INDEX） ---
-$routingJson = Join-Path $skillsRoot 'config\routing.json'
+$routingJson = Join-Path $skillsRoot 'config/routing.json'
 if (Test-Path -LiteralPath $routingJson) {
     $rj = Get-Content -LiteralPath $routingJson -Raw -Encoding UTF8 | ConvertFrom-Json
     $rjRoutes = @($rj.routes.PSObject.Properties)
@@ -35,7 +35,7 @@ if (Test-Path -LiteralPath $routingJson) {
     Bad 'skills/config/routing.json missing (single source of truth)'
 }
 
-$benchJson = Join-Path $skillsRoot 'tests\routing-benchmark.json'
+$benchJson = Join-Path $skillsRoot 'tests/routing-benchmark.json'
 if (Test-Path -LiteralPath $benchJson) {
     $bj = Get-Content -LiteralPath $benchJson -Raw -Encoding UTF8 | ConvertFrom-Json
     $bjCases = @($bj.cases)
@@ -64,24 +64,24 @@ if ($mrText -match '\$map\s*=\s*\[ordered\]' -or $mrText -match "R1'\s*=\s*'apk-
 
 # --- ops artifacts exist ---
 $opsFiles = @(
-    'ops\IDENTITY.md',
-    'ops\scope-contract.md',
-    'ops\evidence-finding-path.md',
-    'ops\role-map.md',
-    'ops\timeline-workitem.md',
-    'ops\sandbox-profile.md',
-    'ops\skill-supply-chain.md',
-    'ops\README.md',
-    'references\community-security-skills.md',
-    'references\domain-coverage-map.md',
+    'ops/IDENTITY.md',
+    'ops/scope-contract.md',
+    'ops/evidence-finding-path.md',
+    'ops/role-map.md',
+    'ops/timeline-workitem.md',
+    'ops/sandbox-profile.md',
+    'ops/skill-supply-chain.md',
+    'ops/README.md',
+    'references/community-security-skills.md',
+    'references/domain-coverage-map.md',
     'attack-chain\references\lifecycle-checklist.md',
-    'reverse-engineering\references\re-agent-workflow.md',
-    'pentest-tools\references\recon-pipeline.md',
+    'reverse-engineering/references\re-agent-workflow.md',
+    'pentest-tools/references\recon-pipeline.md',
     'MASTER-ROUTING.md',
     'scripts\master-route.ps1',
     'scripts\case-init.ps1',
-    'docs-generator\references\security-report-templates.md',
-    'field-journal\_template.md'
+    'docs-generator/references\security-report-templates.md',
+    'field-journal/_template.md'
 )
 $indexLines = New-Object System.Collections.Generic.List[string]
 foreach ($rel in $opsFiles) {
@@ -106,7 +106,7 @@ foreach ($hub in @('MASTER-ROUTING.md', 'SKILL.md', 'routing.md')) {
 }
 # research deposits must be reachable from hubs
 $hubAll = ''
-foreach ($hub in @('MASTER-ROUTING.md', 'SKILL.md', 'ops\README.md', 'routing.md')) {
+foreach ($hub in @('MASTER-ROUTING.md', 'SKILL.md', 'ops/README.md', 'routing.md')) {
     $hp = Join-Path $skillsRoot $hub
     if (Test-Path $hp) { $hubAll += (Get-Content $hp -Raw -Encoding UTF8) }
 }
@@ -155,20 +155,20 @@ function Assert-Fields([string]$path, [string[]]$needles) {
         }
     }
 }
-Assert-Fields (Join-Path $skillsRoot 'ops\scope-contract.md') @('auth', 'in_scope', 'out_of_scope', 'network_profile', 'deliverables')
-Assert-Fields (Join-Path $skillsRoot 'ops\evidence-finding-path.md') @('Evidence', 'Finding', 'Path', 'repro_command', 'evidence_ids')
-Assert-Fields (Join-Path $skillsRoot 'ops\timeline-workitem.md') @('timeline.md', 'workitems.md', 'Coverage')
-Assert-Fields (Join-Path $skillsRoot 'ops\role-map.md') @('lead', 'cie', 'cpe', 'cre', 'Handoff')
-Assert-Fields (Join-Path $skillsRoot 'ops\skill-supply-chain.md') @('AST10', 'MCP', 'bootstrap', 'MUST')
-Assert-Fields (Join-Path $skillsRoot 'references\community-security-skills.md') @('trailofbits', 'agentskills.io', 'MUST', '2026-07')
-Assert-Fields (Join-Path $skillsRoot 'reverse-engineering\references\re-agent-workflow.md') @('Triage', 'Static', 'Dynamic', 'Synthesis')
-Assert-Fields (Join-Path $skillsRoot 'pentest-tools\references\recon-pipeline.md') @('auth.status', 'network_profile', 'Evidence', 'nuclei')
-Assert-Fields (Join-Path $skillsRoot 'docs-generator\references\security-report-templates.md') @('Evidence Chain', 'Findings', 'Path')
-Assert-Fields (Join-Path $skillsRoot 'field-journal\_template.md') @('Scope', 'Evidence', 'Finding')
+Assert-Fields (Join-Path $skillsRoot 'ops/scope-contract.md') @('auth', 'in_scope', 'out_of_scope', 'network_profile', 'deliverables')
+Assert-Fields (Join-Path $skillsRoot 'ops/evidence-finding-path.md') @('Evidence', 'Finding', 'Path', 'repro_command', 'evidence_ids')
+Assert-Fields (Join-Path $skillsRoot 'ops/timeline-workitem.md') @('timeline.md', 'workitems.md', 'Coverage')
+Assert-Fields (Join-Path $skillsRoot 'ops/role-map.md') @('lead', 'cie', 'cpe', 'cre', 'Handoff')
+Assert-Fields (Join-Path $skillsRoot 'ops/skill-supply-chain.md') @('AST10', 'MCP', 'bootstrap', 'MUST')
+Assert-Fields (Join-Path $skillsRoot 'references/community-security-skills.md') @('trailofbits', 'agentskills.io', 'MUST', '2026-07')
+Assert-Fields (Join-Path $skillsRoot 'reverse-engineering/references\re-agent-workflow.md') @('Triage', 'Static', 'Dynamic', 'Synthesis')
+Assert-Fields (Join-Path $skillsRoot 'pentest-tools/references\recon-pipeline.md') @('auth.status', 'network_profile', 'Evidence', 'nuclei')
+Assert-Fields (Join-Path $skillsRoot 'docs-generator/references\security-report-templates.md') @('Evidence Chain', 'Findings', 'Path')
+Assert-Fields (Join-Path $skillsRoot 'field-journal/_template.md') @('Scope', 'Evidence', 'Finding')
 $fieldLog | Set-Content -LiteralPath (Join-Path $ScratchDir 'template-fields.txt') -Encoding UTF8
 
 # --- role map skills exist for primary rows ---
-$roleDoc = Get-Content (Join-Path $skillsRoot 'ops\role-map.md') -Raw -Encoding UTF8
+$roleDoc = Get-Content (Join-Path $skillsRoot 'ops/role-map.md') -Raw -Encoding UTF8
 foreach ($sk in @('attack-chain', 'pentest-tools', 'ida-reverse', 'docs-generator', 'llm-security')) {
     if ($roleDoc -match [regex]::Escape($sk)) { Ok "role-map mentions $sk" } else { Bad "role-map missing $sk" }
 }
@@ -226,7 +226,7 @@ if ($def -match 'work[\\/]master-route-') { Ok 'default OutDir under work/' } el
 $caseName = 'verify-ops-' + (Get-Date -Format 'HHmmss')
 $ci = & powershell -NoProfile -ExecutionPolicy Bypass -File $caseInit -Hint 'apk jadx reverse' -CaseName $caseName -PackageRoot $packageRoot 2>&1 | Out-String
 $ci | Set-Content (Join-Path $ScratchDir 'case-init.txt') -Encoding UTF8
-$caseRoot = Join-Path $packageRoot ("work\{0}" -f $caseName)
+$caseRoot = Join-Path $packageRoot ("work/{0}" -f $caseName)
 foreach ($f in @('scope.md', 'timeline.md', 'workitems.md')) {
     $fp = Join-Path $caseRoot $f
     if (Test-Path $fp) { Ok "case-init $f" } else { Bad "case-init missing $f" }
@@ -256,7 +256,7 @@ if ($e -and $e.Count -gt 0) { Bad ("refresh-tool-index parse: {0}" -f $e[0]) } e
 
 # --- bootstrap-manifest parity (skills vs kali) ---
 $skillsManifest = Join-Path $scriptDir 'bootstrap-manifest.json'
-$kaliManifest = Join-Path $packageRoot 'kali\scripts\bootstrap-manifest.json'
+$kaliManifest = Join-Path $packageRoot 'kali/scripts/bootstrap-manifest.json'
 $skillsCaps = @()
 if (Test-Path -LiteralPath $skillsManifest) {
     $sm = Get-Content -LiteralPath $skillsManifest -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -309,7 +309,7 @@ foreach ($mf in @($skillsManifest, $kaliManifest)) {
 }
 
 # identity: no FastAPI/React requirement in ops IDENTITY
-$id = Get-Content (Join-Path $skillsRoot 'ops\IDENTITY.md') -Raw -Encoding UTF8
+$id = Get-Content (Join-Path $skillsRoot 'ops/IDENTITY.md') -Raw -Encoding UTF8
 if ($id -match '不是|不做|NOT|not a Z3r0|FastAPI|React') { Ok 'identity distinguishes platform' } else { Bad 'identity weak' }
 if ($id -match 'tool-index|bootstrap|field-journal|路由') { Ok 'identity keeps reverse-skill DNA' } else { Bad 'identity missing DNA' }
 

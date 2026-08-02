@@ -18,13 +18,14 @@ $indexPath = Join-Path $skillsRoot 'INDEX.md'
 $skipDirs = @('ops', 'scripts', 'config', 'tests', 'field-journal', 'references')
 $skillFiles = Get-ChildItem -Path $skillsRoot -Recurse -Filter 'SKILL.md' | Where-Object {
     $rel = $_.FullName.Substring($skillsRoot.Length + 1)
-    $rel -ne 'SKILL.md' -and -not ($skipDirs | Where-Object { $rel.StartsWith($_ + '\') })
+    $rel -ne 'SKILL.md' -and -not ($skipDirs | Where-Object { $rel.StartsWith($_ + '\') -or $rel.StartsWith($_ + '/') })
 } | Sort-Object FullName
 
 $rows = New-Object System.Collections.ArrayList
 foreach ($sf in $skillFiles) {
     $rel = $sf.FullName.Substring($skillsRoot.Length + 1)
-    $dir = $rel.Split('\')[0]
+    # 兼容 Windows（\）与 Linux/macOS（/）两种路径分隔符
+    $dir = $rel.Split(@('\', '/'))[0]
     $head = Get-Content -LiteralPath $sf.FullName -TotalCount 15 -Encoding UTF8
     $name = ''; $desc = ''; $blockMode = $false; $inFm = $false
     foreach ($line in $head) {

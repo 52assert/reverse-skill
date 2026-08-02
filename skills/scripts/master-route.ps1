@@ -109,14 +109,14 @@ if (-not (Test-Path -LiteralPath $skillAbs)) {
     exit 2
 }
 
-# --- 输出目录（默认包根 work\master-route-<ts>） ---
+# --- 输出目录（默认包根 work\master-route-<ts>；Join-Path 分步拼接，跨平台安全） ---
 if ([string]::IsNullOrWhiteSpace($OutDir)) {
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
     if ($packageRoot -and (Test-Path -LiteralPath $packageRoot)) {
-        $OutDir = Join-Path $packageRoot ("work\master-route-{0}" -f $stamp)
+        $OutDir = Join-Path (Join-Path $packageRoot 'work') ("master-route-{0}" -f $stamp)
     } else {
         $tmpBase = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
-        $OutDir = Join-Path $tmpBase ("reverse-skill-route\master-route-{0}" -f $stamp)
+        $OutDir = Join-Path (Join-Path $tmpBase 'reverse-skill-route') ("master-route-{0}" -f $stamp)
     }
 }
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null

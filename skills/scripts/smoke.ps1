@@ -16,7 +16,8 @@ if (-not $PackageRoot) { $PackageRoot = Split-Path -Parent $skillsRoot }
 
 if ([string]::IsNullOrWhiteSpace($LogDir)) {
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $LogDir = Join-Path $env:TEMP ("rs-smoke-{0}" -f $stamp)
+    $tmpBase = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
+    $LogDir = Join-Path $tmpBase ("rs-smoke-{0}" -f $stamp)
 }
 New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
 
