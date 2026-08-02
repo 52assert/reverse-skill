@@ -26,6 +26,9 @@ Desktop.ini
 
 # User-specific config
 .claude/
+# Local Issue/PR review exports; do not commit GitHub discussion snapshots.
+issues.json
+issues-index.txt
 
 # 测试案例（本地）
 测试案例/
