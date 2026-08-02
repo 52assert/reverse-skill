@@ -95,6 +95,12 @@ if ($null -eq $primary) {
     $confidence = if ($uniq.Count -eq 1) { 'high' } else { 'medium' }
 }
 
+# 防御：priority 若含 routes 之外的幽灵 id（配置错误），回退到 fallback 而非崩溃
+if ($routeIds -notcontains $primary) {
+    Write-Host ("WARN: primary id '{0}' not in routes; falling back to {1}" -f $primary, $fallbackId) -ForegroundColor Yellow
+    $primary = $fallbackId
+}
+
 $primaryPath = $cfg.routes.$primary.skill
 $primaryLabel = $cfg.routes.$primary.label
 $skillAbs = Join-Path $skillsRoot ($primaryPath -replace '/', [IO.Path]::DirectorySeparatorChar)

@@ -57,7 +57,8 @@ if ($doClaude) {
     $utf8 = New-Object System.Text.UTF8Encoding $true
     [System.IO.File]::WriteAllText($claudeFile, $content, $utf8)
     Write-Host ("OK: wrote {0}" -f $claudeFile) -ForegroundColor Green
-    Write-Host "    Claude Code 会读取 ~/.claude/ 下的说明文件；若未生效，可在 CLAUDE.md 中手写一行：@" -ForegroundColor DarkGray
+    Write-Host "    Claude Code 全局记忆只读 ~/.claude/CLAUDE.md；如需自动加载本文件，" -ForegroundColor DarkGray
+    Write-Host ("    请在 CLAUDE.md 中手写一行：@ {0}" -f $claudeFile) -ForegroundColor DarkGray
     [void]$installed.Add($claudeFile)
 } else {
     Write-Host 'Claude Code: skipped' -ForegroundColor DarkGray

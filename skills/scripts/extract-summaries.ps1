@@ -83,6 +83,8 @@ foreach ($r in $rows) {
 [void]$sb.AppendLine('歧义场景读 `skills/routing.md` 全矩阵；CTF 多类型任务走 `CTF-Sandbox-Orchestrator/`。')
 
 $newContent = $sb.ToString()
+# 统一 LF 行尾：与 .gitattributes (*.md eol=lf) 保持一致，保证 clone 后 -Check 幂等
+$newContent = $newContent -replace "`r`n", "`n"
 $utf8 = New-Object System.Text.UTF8Encoding $true
 
 if ($Check) {
@@ -90,7 +92,8 @@ if ($Check) {
         Write-Host '[CHECK] INDEX.md missing' -ForegroundColor Red
         exit 1
     }
-    $old = [System.IO.File]::ReadAllText($indexPath)
+    # 行尾免疫：autocrlf=true 的机器上 worktree 可能是 CRLF，normalize 后再比
+    $old = ([System.IO.File]::ReadAllText($indexPath)) -replace "`r`n", "`n"
     if ($old -eq $newContent) {
         Write-Host '[CHECK] INDEX.md up to date' -ForegroundColor Green
         exit 0

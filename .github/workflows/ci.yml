@@ -1,10 +1,10 @@
 # reverse-skill CI：路由回归 + 结构一致性 + 供应链 pin gate + 冒烟 + opencode 配置
 # 矩阵：windows-latest（原生 powershell 5.1） + ubuntu-latest（pwsh + powershell shim）
+# 触发：所有分支（含 fork 的改进分支），PR 也触发
 name: CI
 
 on:
   push:
-    branches: [main, v4]
   pull_request:
 
 jobs:
@@ -43,10 +43,10 @@ jobs:
       - name: All JSON manifests valid
         shell: pwsh
         run: |
-          Get-Content skills/scripts/bootstrap-manifest.json -Raw | ConvertFrom-Json | Out-Null
-          Get-Content kali/scripts/bootstrap-manifest.json -Raw | ConvertFrom-Json | Out-Null
-          Get-Content skills/config/routing.json -Raw | ConvertFrom-Json | Out-Null
-          Get-Content skills/tests/routing-benchmark.json -Raw | ConvertFrom-Json | Out-Null
+          Get-Content skills/scripts/bootstrap-manifest.json -Raw -Encoding UTF8 | ConvertFrom-Json | Out-Null
+          Get-Content kali/scripts/bootstrap-manifest.json -Raw -Encoding UTF8 | ConvertFrom-Json | Out-Null
+          Get-Content skills/config/routing.json -Raw -Encoding UTF8 | ConvertFrom-Json | Out-Null
+          Get-Content skills/tests/routing-benchmark.json -Raw -Encoding UTF8 | ConvertFrom-Json | Out-Null
           Write-Host "All JSON valid"
 
   opencode-config:
