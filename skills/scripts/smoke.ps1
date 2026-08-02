@@ -50,7 +50,12 @@ $scripts = @(
     'refresh-tool-index.ps1',
     'smoke.ps1',
     'append-evidence.ps1',
-    'case-guard.ps1'
+    'case-guard.ps1',
+    'test-routing.ps1',
+    'extract-summaries.ps1',
+    'install-global.ps1',
+    'uninstall-global.ps1',
+    'install-opencode.ps1'
 )
 $parseOk = 0
 $parseFail = 0

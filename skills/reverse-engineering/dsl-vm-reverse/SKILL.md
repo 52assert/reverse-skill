@@ -1,3 +1,8 @@
+---
+name: dsl-vm-reverse
+description: 逆向基于 JavaScript 实现的自定义虚拟机/风控引擎（IIFE + switch-case opcode DSL VM）。适用于 DSL VM、自定义指令集、fireye/getToken 类前端风控引擎、opcode VM 逆向，以及 582KB 大 JS 非 WASM 文件的 VM 分类与脱密。
+---
+
 # 🔄 DSL 自定义虚拟机逆向（DSL VM Reverse Engineering）
 
 > 用于逆向基于 JavaScript 实现的自定义 WASM 虚拟机/风控引擎

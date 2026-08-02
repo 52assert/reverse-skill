@@ -19,6 +19,49 @@ $fail = New-Object System.Collections.Generic.List[string]
 function Ok($m) { Write-Host "[OK] $m" -ForegroundColor Green }
 function Bad($m) { Write-Host "[FAIL] $m" -ForegroundColor Red; [void]$fail.Add($m) }
 
+# --- 新事实源/产物检查（routing.json / benchmark / INDEX） ---
+$routingJson = Join-Path $skillsRoot 'config\routing.json'
+if (Test-Path -LiteralPath $routingJson) {
+    $rj = Get-Content -LiteralPath $routingJson -Raw -Encoding UTF8 | ConvertFrom-Json
+    $rjRoutes = @($rj.routes.PSObject.Properties)
+    if ($rjRoutes.Count -ge 30) { Ok "routing.json routes=$($rjRoutes.Count)" } else { Bad 'routing.json route count suspicious (<30)' }
+    $badRoute = @($rjRoutes | Where-Object { -not $_.Value.label -or -not $_.Value.skill -or -not $_.Value.keywords })
+    if ($badRoute.Count -eq 0) { Ok 'routing.json: all routes have label/skill/keywords' } else { Bad "routing.json routes missing fields: $($badRoute.Name -join ',')" }
+    $routeIds = @($rjRoutes | ForEach-Object { $_.Name })
+    $missingPrio = @($routeIds | Where-Object { $_ -notin @($rj.priority) })
+    $extraPrio = @($rj.priority | Where-Object { $_ -notin $routeIds })
+    if ($missingPrio.Count -eq 0 -and $extraPrio.Count -eq 0) { Ok 'routing.json priority covers all routes (1:1)' } else { Bad "routing.json priority mismatch: missing=$($missingPrio -join ',') extra=$($extraPrio -join ',')" }
+} else {
+    Bad 'skills/config/routing.json missing (single source of truth)'
+}
+
+$benchJson = Join-Path $skillsRoot 'tests\routing-benchmark.json'
+if (Test-Path -LiteralPath $benchJson) {
+    $bj = Get-Content -LiteralPath $benchJson -Raw -Encoding UTF8 | ConvertFrom-Json
+    $bjCases = @($bj.cases)
+    if ($bjCases.Count -ge 100) { Ok "benchmark cases=$($bjCases.Count)" } else { Bad "benchmark cases < 100 ($($bjCases.Count))" }
+    $badExpect = @($bjCases | Where-Object { $_.expect -notmatch '^R\d+$' })
+    if ($badExpect.Count -eq 0) { Ok 'benchmark expect ids well-formed' } else { Bad "benchmark bad expect: $($badExpect.Count)" }
+    # benchmark expect 必须存在于 routing.json（防 benchmark 引用已删除的路由）
+    if (Test-Path -LiteralPath $routingJson) {
+        $rjIds = @($rjRoutes | ForEach-Object { $_.Name })
+        $ghostExpect = @($bjCases | Where-Object { $_.expect -notin $rjIds })
+        if ($ghostExpect.Count -eq 0) { Ok 'benchmark expects all exist in routing.json' } else { Bad "benchmark ghost expects: $(($ghostExpect | Select-Object -First 5).expect -join ',')" }
+    }
+} else {
+    Bad 'skills/tests/routing-benchmark.json missing'
+}
+
+if (Test-Path -LiteralPath (Join-Path $skillsRoot 'INDEX.md')) { Ok 'INDEX.md present (generated)' } else { Bad 'INDEX.md missing (run extract-summaries.ps1)' }
+
+# master-route.ps1 不得回退到硬编码路由表（防绕过 routing.json）
+$mrText = Get-Content -LiteralPath (Join-Path $scriptDir 'master-route.ps1') -Raw -Encoding UTF8
+if ($mrText -match '\$map\s*=\s*\[ordered\]' -or $mrText -match "R1'\s*=\s*'apk-reverse") {
+    Bad 'master-route.ps1 contains hardcoded routing table (must read routing.json)'
+} else {
+    Ok 'master-route.ps1 has no hardcoded routing table'
+}
+
 # --- ops artifacts exist ---
 $opsFiles = @(
     'ops\IDENTITY.md',
@@ -233,6 +276,36 @@ if (Test-Path -LiteralPath $kaliManifest) {
     }
 } else {
     Bad 'kali bootstrap-manifest.json missing'
+}
+
+# --- supply-chain pin gate: auto-install download sources MUST be pinned ---
+# 统一判定：pinnedVersion / pinnedCommit / pinPolicy 三选一；
+# github-release-* 额外接受 assetSha256 / preferApiDigest（GitHub 官方发布资产哈希）。
+$pinKinds = @('pip-package', 'npm-mcp', 'npm-global', 'go-install', 'git-clone')
+foreach ($mf in @($skillsManifest, $kaliManifest)) {
+    if (-not (Test-Path -LiteralPath $mf)) { continue }
+    $mn = Split-Path $mf -Leaf
+    $mc = Get-Content -LiteralPath $mf -Raw -Encoding UTF8 | ConvertFrom-Json
+    foreach ($cap in $mc.capabilities) {
+        if (-not $cap.canAutoInstall) { continue }
+        $hasPin = ($cap.pinnedVersion -or $cap.pinnedCommit -or $cap.pinPolicy)
+        switch ($cap.bootstrapKind) {
+            'github-release-zip' { $hasPin = $hasPin -or $cap.assetSha256 -or $cap.preferApiDigest }
+            'github-release-jar-wrapper' { $hasPin = $hasPin -or $cap.assetSha256 }
+            'github-release-tar' { $hasPin = $hasPin -or $cap.assetSha256 -or $cap.preferApiDigest }
+            'local-http-mcp' { $hasPin = $true }   # 本地服务，不下载
+            'winget-package' { $hasPin = $hasPin } # winget-latest 属于 pinPolicy
+            'apt-package' { $hasPin = $true }      # 发行版仓库自带（Kali 侧）
+            'docker-image' { $hasPin = $true }     # fallback 通道
+            'manual' { $hasPin = $true }           # 手工安装
+            default { $hasPin = $hasPin }
+        }
+        if (-not $hasPin) {
+            Bad "unpinned auto-install capability: $($cap.name) in $mn ($($cap.bootstrapKind))"
+        } else {
+            Ok "pinned $($cap.name) in $mn"
+        }
+    }
 }
 
 # identity: no FastAPI/React requirement in ops IDENTITY

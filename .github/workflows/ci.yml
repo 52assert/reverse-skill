@@ -1,0 +1,73 @@
+# reverse-skill CI：路由回归 + 结构一致性 + 供应链 pin gate + 冒烟 + opencode 配置
+# 矩阵：windows-latest（原生 powershell 5.1） + ubuntu-latest（pwsh + powershell shim）
+name: CI
+
+on:
+  push:
+    branches: [main, v4]
+  pull_request:
+
+jobs:
+  routing-tests:
+    name: routing tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # 脚本内部以 `powershell` 调用子进程；Linux runner 只有 pwsh，做个 shim
+      - name: powershell shim (linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: sudo ln -sf "$(command -v pwsh)" /usr/local/bin/powershell
+
+      - name: Routing regression (162 cases)
+        shell: pwsh
+        run: ./skills/scripts/test-routing.ps1
+
+      - name: Routing coherence + supply-chain pin gate
+        shell: pwsh
+        run: ./skills/scripts/verify-routing-coherence.ps1
+
+      - name: Smoke (verify + parse + quick route)
+        shell: pwsh
+        run: ./skills/scripts/smoke.ps1
+
+      - name: INDEX.md up-to-date check
+        shell: pwsh
+        run: ./skills/scripts/extract-summaries.ps1 -Check
+
+      - name: All JSON manifests valid
+        shell: pwsh
+        run: |
+          Get-Content skills/scripts/bootstrap-manifest.json -Raw | ConvertFrom-Json | Out-Null
+          Get-Content kali/scripts/bootstrap-manifest.json -Raw | ConvertFrom-Json | Out-Null
+          Get-Content skills/config/routing.json -Raw | ConvertFrom-Json | Out-Null
+          Get-Content skills/tests/routing-benchmark.json -Raw | ConvertFrom-Json | Out-Null
+          Write-Host "All JSON valid"
+
+  opencode-config:
+    name: opencode integration check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install-opencode checks (CLI / config / frontmatter)
+        shell: pwsh
+        run: ./skills/scripts/install-opencode.ps1
+
+  sh-syntax:
+    name: shell script syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: bash -n all .sh
+        shell: bash
+        run: |
+          set -e
+          while IFS= read -r f; do
+            bash -n "$f"
+            echo "syntax OK: $f"
+          done < <(git ls-files '*.sh')
