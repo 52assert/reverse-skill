@@ -13,6 +13,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+KALI_MANIFEST="$SCRIPT_DIR/bootstrap-manifest.json"
 source "$SCRIPT_DIR/lib/tool-discovery.sh"
 
 # ─── 参数解析 ──────────────────────────────────────────────────────────────────────
@@ -20,13 +21,15 @@ source "$SCRIPT_DIR/lib/tool-discovery.sh"
 CAPABILITIES=()
 START_SERVICES=false
 SKIP_REFRESH=false
+MANUAL_REQUIRED=false
+LAST_CAPABILITY_MANUAL=false
 
 for arg in "$@"; do
     case "$arg" in
         --start-services) START_SERVICES=true ;;
         --skip-refresh) SKIP_REFRESH=true ;;
         --list|-l)
-            echo "jadx apktool frida frida-ps idalib-mcp jshookmcp anything-analyzer idapro r2 rabin2 adb agent-browser ghidra-mcp seclists proxycat burpsuite-mcp nmap pentestswarm"
+            echo "jadx apktool jeb-pro frida frida-ps idalib-mcp jshookmcp reqable-mcp anything-analyzer idapro r2 rabin2 adb agent-browser ghidra-mcp seclists proxycat burpsuite-mcp nmap pentestswarm"
             echo "mcp-kali-server metasploitmcp hexstrike-ai adaptixc2 atomic-operator sstimap xsstrike wpprobe fluxion gef coercer evil-winrm-py netexec responder bloodhound certipy"
             exit 0
             ;;
@@ -41,7 +44,7 @@ if [[ ${#CAPABILITIES[@]} -eq 0 ]]; then
     echo "可用能力:"
     echo ""
     echo "  [逆向分析]"
-    echo "    jadx apktool frida frida-ps idalib-mcp r2 rabin2 adb gef"
+    echo "    jadx apktool jeb-pro frida frida-ps idalib-mcp r2 rabin2 adb gef"
     echo ""
     echo "  [渗透测试 - 经典工具]"
     echo "    nmap sqlmap hashcat hydra gobuster ffuf msfconsole nuclei"
@@ -52,7 +55,7 @@ if [[ ${#CAPABILITIES[@]} -eq 0 ]]; then
     echo "    adaptixc2 atomic-operator sstimap xsstrike wpprobe fluxion"
     echo ""
     echo "  [MCP 服务]"
-    echo "    jshookmcp anything-analyzer idapro agent-browser"
+    echo "    jshookmcp reqable-mcp anything-analyzer idapro agent-browser"
     echo "    mcp-kali-server metasploitmcp hexstrike-ai pentestswarm"
     echo ""
     echo "  [其他]"
@@ -117,32 +120,78 @@ install_npm_global() {
     fi
 }
 
-# GitHub Release 下载并解压
+# GitHub Release 下载并解压。
+# Args: repo asset_regex install_dir [release_tag] [expected_sha256]
 install_github_release() {
     local repo="$1"
     local asset_regex="$2"
     local install_dir="$3"
+    local release_tag="${4:-}"
+    local expected_sha256="${5:-}"
 
-    log_info "从 GitHub Release 下载: $repo ..."
-
-    local api_url="https://api.github.com/repos/${repo}/releases/latest"
-    local release_json
-    release_json=$(curl -sL "$api_url")
-
-    local download_url
-    download_url=$(echo "$release_json" | jq -r ".assets[] | select(.name | test(\"${asset_regex}\")) | .browser_download_url" | head -n1)
-
-    if [[ -z "$download_url" || "$download_url" == "null" ]]; then
-        log_err "未找到匹配 $asset_regex 的 release asset"
+    if ! command -v jq &>/dev/null; then
+        log_err "jq is required to select and verify GitHub release assets"
         return 1
     fi
 
-    local filename
-    filename=$(basename "$download_url")
-    local tmp_file="/tmp/bootstrap-$$-${filename}"
+    log_info "从 GitHub Release 下载: $repo ..."
+
+    local api_url
+    if [[ -n "$release_tag" ]]; then
+        api_url="https://api.github.com/repos/${repo}/releases/tags/${release_tag}"
+    else
+        api_url="https://api.github.com/repos/${repo}/releases/latest"
+    fi
+
+    local release_json
+    release_json=$(curl --fail --silent --show-error --location "$api_url")
+
+    local asset
+    asset=$(printf '%s' "$release_json" | jq -cer --arg regex "$asset_regex" '.assets[] | select(.name | test($regex)) | {name, browser_download_url, digest}' | head -n1)
+    if [[ -z "$asset" || "$asset" == "null" ]]; then
+        log_err "未找到匹配 $asset_regex 的 release asset (tag=${release_tag:-latest})"
+        return 1
+    fi
+
+    local download_url filename api_digest
+    download_url=$(printf '%s' "$asset" | jq -r '.browser_download_url')
+    filename=$(printf '%s' "$asset" | jq -r '.name')
+    api_digest=$(printf '%s' "$asset" | jq -r '.digest // empty')
+    local tmp_file
+    tmp_file=$(mktemp "/tmp/reverse-bootstrap-${filename}.XXXXXX")
+    local tmp_extract=''
+
+    cleanup_github_release() {
+        rm -f "$tmp_file"
+        if [[ -n "$tmp_extract" ]]; then rm -rf "$tmp_extract"; fi
+    }
 
     log_info "下载: $download_url"
-    curl -sL -o "$tmp_file" "$download_url"
+    if ! curl --fail --silent --show-error --location -o "$tmp_file" "$download_url"; then
+        cleanup_github_release
+        return 1
+    fi
+
+    local expected="${expected_sha256#sha256:}"
+    expected="${expected,,}"
+    if [[ -z "$expected" && -n "$api_digest" ]]; then
+        expected="${api_digest#sha256:}"
+        expected="${expected,,}"
+    fi
+    if [[ -z "$expected" ]]; then
+        log_err "缺少固定 SHA-256 或 GitHub digest，拒绝安装未校验资产: $filename"
+        cleanup_github_release
+        return 1
+    fi
+
+    local actual
+    actual=$(sha256sum "$tmp_file" | awk '{print tolower($1)}')
+    if [[ "$actual" != "$expected" ]]; then
+        log_err "SHA-256 不匹配: $filename (expected $expected, got $actual)"
+        cleanup_github_release
+        return 1
+    fi
+    log_ok "SHA-256 校验通过: $actual"
 
     # 创建安装目录
     mkdir -p "$install_dir"
@@ -154,18 +203,16 @@ install_github_release() {
                 || tar -xzf "$tmp_file" -C "$install_dir"
             ;;
         *.zip)
-            local tmp_extract="/tmp/bootstrap-extract-$$"
-            mkdir -p "$tmp_extract"
+            tmp_extract=$(mktemp -d /tmp/reverse-bootstrap-extract.XXXXXX)
             unzip -qo "$tmp_file" -d "$tmp_extract"
             # 如果只有一个顶层目录，strip 它
             local top_dirs
             top_dirs=$(find "$tmp_extract" -maxdepth 1 -mindepth 1 -type d)
-            if [[ $(echo "$top_dirs" | wc -l) -eq 1 ]]; then
-                cp -a "$top_dirs"/* "$install_dir/" 2>/dev/null || mv "$top_dirs"/* "$install_dir/"
+            if [[ $(printf '%s\n' "$top_dirs" | wc -l) -eq 1 ]]; then
+                cp -a "$top_dirs"/. "$install_dir/"
             else
-                cp -a "$tmp_extract"/* "$install_dir/"
+                cp -a "$tmp_extract"/. "$install_dir/"
             fi
-            rm -rf "$tmp_extract"
             ;;
         *.deb)
             if [[ $EUID -eq 0 ]]; then
@@ -179,7 +226,7 @@ install_github_release() {
             ;;
     esac
 
-    rm -f "$tmp_file"
+    cleanup_github_release
 
     # 把 bin 目录加入 PATH（当前 session）
     if [[ -d "$install_dir/bin" ]]; then
@@ -234,6 +281,44 @@ wait_for_port() {
 }
 
 # ─── 能力安装逻辑 ──────────────────────────────────────────────────────────────────
+
+manifest_field() {
+    local capability="$1"
+    local field="$2"
+    if [[ ! -f "$KALI_MANIFEST" ]] || ! command -v jq &>/dev/null; then
+        return 1
+    fi
+    jq -er --arg name "$capability" --arg field "$field" \
+        '.capabilities[] | select(.name == $name) | .[$field] // empty' "$KALI_MANIFEST"
+}
+
+install_manifest_release() {
+    local capability="$1"
+    local repo asset_regex install_dir release_tag asset_sha256
+    repo=$(manifest_field "$capability" repo) || {
+        log_err "manifest 中缺少 $capability.repo"
+        return 1
+    }
+    asset_regex=$(manifest_field "$capability" assetRegex) || {
+        log_err "manifest 中缺少 $capability.assetRegex"
+        return 1
+    }
+    install_dir=$(manifest_field "$capability" installDir) || {
+        log_err "manifest 中缺少 $capability.installDir"
+        return 1
+    }
+    release_tag=$(manifest_field "$capability" releaseTag) || {
+        log_err "manifest 中缺少 $capability.releaseTag；拒绝使用 latest"
+        return 1
+    }
+    asset_sha256=$(manifest_field "$capability" assetSha256) || {
+        log_err "manifest 中缺少 $capability.assetSha256；拒绝下载未固定资产"
+        return 1
+    }
+
+    install_dir="${install_dir/\$HOME/$HOME}"
+    install_github_release "$repo" "$asset_regex" "$install_dir" "$release_tag" "$asset_sha256"
+}
 
 ensure_capability() {
     local name="$1"
@@ -384,7 +469,7 @@ ensure_capability() {
 
         # ─── GitHub Release ───
         jadx)
-            install_github_release "skylot/jadx" "^jadx-[0-9].*\\.zip$" "$HOME/tools/jadx"
+            install_manifest_release "jadx"
             chmod +x "$HOME/tools/jadx/bin/jadx" 2>/dev/null || true
             ;;
         ghidra-mcp)
@@ -406,6 +491,26 @@ ensure_capability() {
             ;;
 
         # ─── npm/MCP ───
+        jeb-pro)
+            log_warn "MANUAL_INSTALL_REQUIRED: jeb-pro"
+            log_warn "JEB Pro 是商业工具；请从 PNF Software 获取有效许可证后手动安装。社区 MCP 桥接必须先按 skill-supply-chain.md 审查。"
+            LAST_CAPABILITY_MANUAL=true
+            MANUAL_REQUIRED=true
+            return 0
+            ;;
+        reqable-mcp)
+            if ! command -v node &>/dev/null; then
+                install_apt_package "nodejs"
+            fi
+            if ! command -v npm &>/dev/null; then
+                install_apt_package "npm"
+            fi
+            register_mcp_server "reqable-mcp" '{
+                "command": "npx",
+                "args": ["-y", "reqable-mcp-server@1.0.1", "--scope", "minimal"]
+            }'
+            log_warn "Reqable MCP 需要单独安装 Reqable 桌面客户端并启用其本地 API。"
+            ;;
         jshookmcp)
             if ! command -v node &>/dev/null; then
                 install_apt_package "nodejs"
@@ -508,8 +613,13 @@ start_idapro_service() {
 RESULTS=()
 
 for cap in "${CAPABILITIES[@]}"; do
+    LAST_CAPABILITY_MANUAL=false
     if ensure_capability "$cap"; then
-        RESULTS+=("{\"name\":\"$cap\",\"status\":\"ready\"}")
+        if [[ "$LAST_CAPABILITY_MANUAL" == "true" ]]; then
+            RESULTS+=("{\"name\":\"$cap\",\"status\":\"manual-required\"}")
+        else
+            RESULTS+=("{\"name\":\"$cap\",\"status\":\"ready\"}")
+        fi
     else
         RESULTS+=("{\"name\":\"$cap\",\"status\":\"failed\"}")
     fi
@@ -519,6 +629,11 @@ done
 if [[ "$SKIP_REFRESH" != "true" ]]; then
     log_info "刷新工具索引 ..."
     bash "$SCRIPT_DIR/refresh-tool-index.sh" >/dev/null 2>&1 || true
+fi
+
+final_exit_code=0
+if [[ "$MANUAL_REQUIRED" == "true" ]]; then
+    final_exit_code=2
 fi
 
 # 输出结果
@@ -531,8 +646,11 @@ for r in "${RESULTS[@]}"; do
     status=$(echo "$r" | jq -r '.status' 2>/dev/null || echo "unknown")
     if [[ "$status" == "ready" ]]; then
         echo "  ✓ $name"
+    elif [[ "$status" == "manual-required" ]]; then
+        echo "  ! $name (manual install required)"
     else
         echo "  ✗ $name (failed)"
     fi
 done
 echo ""
+exit "$final_exit_code"

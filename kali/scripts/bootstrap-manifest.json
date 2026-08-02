@@ -28,7 +28,7 @@
                              "name":  "jadx",
                              "bootstrapKind":  "github-release-tar",
                              "repo":  "skylot/jadx",
-                             "assetRegex":  "^jadx-1\\\\.5\\\\.6\\\\.zip$",
+                             "assetRegex":  "^jadx-1\\.5\\.6\\.zip$",
                              "installDir":  "$HOME/tools/jadx",
                              "docsUrl":  "https://github.com/skylot/jadx",
                              "canAutoInstall":  true,
@@ -43,7 +43,7 @@
                              "aptPackage":  "apktool",
                              "fallbackKind":  "github-release-jar",
                              "repo":  "iBotPeaches/Apktool",
-                             "assetRegex":  "^apktool_3\\\\.0\\\\.2\\\\.jar$",
+                             "assetRegex":  "^apktool_3\\.0\\.2\\.jar$",
                              "installDir":  "$HOME/tools/apktool",
                              "docsUrl":  "https://apktool.org/",
                              "canAutoInstall":  true,
@@ -75,7 +75,6 @@
                              "name":  "idalib-mcp",
                              "bootstrapKind":  "pip-package",
                              "pipPackage":  "ida-pro-mcp",
-                             "pipSource":  "git+https://github.com/mrexodia/ida-pro-mcp.git@f82e6e2517a161b77e738951c3071cd446480ba0",
                              "docsUrl":  "https://github.com/mrexodia/ida-pro-mcp",
                              "canAutoInstall":  true,
                              "verifyCommand":  "ida-pro-mcp",
@@ -85,7 +84,37 @@
                                                       "IDA 打开文件后 MCP 自动监听 127.0.0.1:13337"
                                                   ],
                              "kaliNote":  "需要 IDA Pro Linux 版本",
+                             "pipSource":  "git+https://github.com/mrexodia/ida-pro-mcp.git@f82e6e2517a161b77e738951c3071cd446480ba0",
                              "pinnedCommit":  "f82e6e2517a161b77e738951c3071cd446480ba0"
+                         },
+                         {
+                             "name":  "jeb-pro",
+                             "bootstrapKind":  "manual",
+                             "docsUrl":  "https://www.pnfsoftware.com/jeb/",
+                             "canAutoInstall":  false,
+                             "verifyCommand":  "jeb",
+                             "manualInstallHint":  "JEB Pro is commercial. Obtain a valid license from PNF Software, install it manually, then refresh the tool index. Optional community MCP bridges must pass the skill-supply-chain review before registration.",
+                             "kaliNote":  "JEB Pro Linux edition requires a user-provided license and manual installation."
+                         },
+                         {
+                             "name":  "reqable-mcp",
+                             "bootstrapKind":  "npm-mcp",
+                             "npmPackage":  "reqable-mcp-server@1.0.1",
+                             "mcpNames":  [
+                                              "reqable-mcp"
+                                          ],
+                             "mcpCommand":  "npx",
+                             "mcpArgs":  [
+                                             "-y",
+                                             "reqable-mcp-server@1.0.1",
+                                             "--scope",
+                                             "minimal"
+                                         ],
+                             "docsUrl":  "https://github.com/reqable/reqable-mcp-server",
+                             "canAutoInstall":  true,
+                             "verifyCommand":  "npx",
+                             "pinnedVersion":  "1.0.1",
+                             "kaliNote":  "Requires the separately installed Reqable desktop application and its local API."
                          },
                          {
                              "name":  "jshookmcp",
@@ -235,8 +264,8 @@
                              "docsUrl":  "https://github.com/honmashironeko/ProxyCat",
                              "canAutoInstall":  true,
                              "verifyCommand":  "proxycat",
-                             "pinnedCommit":  "2309b713e2e4f574df14c2ace7e8fa6c00eb6941",
-                             "repo":  "https://github.com/honmashironeko/ProxyCat.git"
+                             "repo":  "https://github.com/honmashironeko/ProxyCat.git",
+                             "pinnedCommit":  "2309b713e2e4f574df14c2ace7e8fa6c00eb6941"
                          },
                          {
                              "name":  "burpsuite-mcp",
