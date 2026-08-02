@@ -11,8 +11,9 @@ $masterRoute = Join-Path $scriptDir 'master-route.ps1'
 $caseInit = Join-Path $scriptDir 'case-init.ps1'
 $masterDoc = Join-Path $skillsRoot 'MASTER-ROUTING.md'
 
+$tmpBase = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
 if (-not $ScratchDir) {
-    $ScratchDir = Join-Path $env:TEMP ("rs-verify-{0}" -f (Get-Date -Format 'yyyyMMddHHmmss'))
+    $ScratchDir = Join-Path $tmpBase ("rs-verify-{0}" -f (Get-Date -Format 'yyyyMMddHHmmss'))
 }
 New-Item -ItemType Directory -Force -Path $ScratchDir | Out-Null
 $fail = New-Object System.Collections.Generic.List[string]

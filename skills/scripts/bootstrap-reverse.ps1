@@ -13,6 +13,9 @@ param(
     [string]$McpHostTarget = 'Both'
 )
 
+# 临时目录统一入口（$env:TEMP 在 Linux/macOS 上可能未设置）
+$tmpBase = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 [Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false)
@@ -411,7 +414,7 @@ function Expand-ArchiveIntoDirectory {
         [Parameter(Mandatory = $true)][string]$Destination
     )
 
-    $tempExtract = Join-Path $env:TEMP ("reverse-bootstrap-" + [System.Guid]::NewGuid().ToString('N'))
+    $tempExtract = Join-Path $tmpBase ("reverse-bootstrap-" + [System.Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $tempExtract -Force | Out-Null
     Expand-Archive -LiteralPath $ZipPath -DestinationPath $tempExtract -Force
 
@@ -458,7 +461,7 @@ function Ensure-GitHubZipInstall {
     $releaseTag = if ($Definition.PSObject.Properties['releaseTag']) { [string]$Definition.releaseTag } else { '' }
     $asset = Get-GitHubLatestReleaseAsset -Repo $Definition.repo -AssetRegex $Definition.assetRegex -ReleaseTag $releaseTag
     $downloadUrl = if ($asset.PSObject.Properties['browser_download_url']) { $asset.browser_download_url } else { $asset.url }
-    $downloadPath = Join-Path $env:TEMP $asset.name
+    $downloadPath = Join-Path $tmpBase $asset.name
     Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -Headers @{ 'Accept' = 'application/octet-stream' }
     Assert-DownloadedFileIntegrity -Path $downloadPath -Definition $Definition -Asset $asset | Out-Null
     Ensure-DownloadDirectory -Path (Split-Path -Path $TargetPath -Parent)
