@@ -29,7 +29,7 @@ for arg in "$@"; do
         --start-services) START_SERVICES=true ;;
         --skip-refresh) SKIP_REFRESH=true ;;
         --list|-l)
-            echo "jadx apktool jeb-pro frida frida-ps idalib-mcp jshookmcp reqable-mcp anything-analyzer idapro r2 rabin2 adb agent-browser ghidra-mcp seclists proxycat burpsuite-mcp nmap pentestswarm"
+            echo "jadx apktool jeb-pro frida frida-ps idalib-mcp jshookmcp reqable-mcp anything-analyzer idapro r2 rabin2 adb agent-browser ghidra-mcp seclists proxycat burpsuite-mcp nmap pentestswarm bkcrack"
             echo "mcp-kali-server metasploitmcp hexstrike-ai adaptixc2 atomic-operator sstimap xsstrike wpprobe fluxion gef coercer evil-winrm-py netexec responder bloodhound certipy"
             exit 0
             ;;
@@ -57,6 +57,9 @@ if [[ ${#CAPABILITIES[@]} -eq 0 ]]; then
     echo "  [MCP 服务]"
     echo "    jshookmcp reqable-mcp anything-analyzer idapro agent-browser"
     echo "    mcp-kali-server metasploitmcp hexstrike-ai pentestswarm"
+    echo ""
+    echo "  [CTF 压缩包]"
+    echo "    bkcrack"
     echo ""
     echo "  [其他]"
     echo "    ghidra-mcp seclists proxycat burpsuite-mcp"
@@ -333,7 +336,7 @@ ensure_capability() {
 
     case "$name" in
         # ─── apt 预装/可装的工具 ───
-        nmap|sqlmap|hashcat|hydra|gobuster|ffuf|adb)
+        nmap|sqlmap|hashcat|hydra|gobuster|ffuf|adb|bkcrack)
             install_apt_package "$name"
             ;;
         msfconsole)
