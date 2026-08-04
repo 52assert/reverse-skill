@@ -8,6 +8,7 @@ param(
     [string] $Hint = '',
     [string] $CaseName = '',
     [string] $PackageRoot = '',
+    [AllowEmptyString()]
     [string] $ProjectRoot = '',
     [switch] $AuthGranted,
     [string] $AuthStatus = '',
