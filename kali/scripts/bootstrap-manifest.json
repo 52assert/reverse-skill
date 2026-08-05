@@ -530,6 +530,15 @@
       "canAutoInstall": true,
       "verifyCommand": "pwntools",
       "kaliNote": "CTF pwn 利用开发框架。Kali 预装，pip 可更新。"
+    },
+    {
+      "name": "bkcrack",
+      "bootstrapKind": "apt-package",
+      "aptPackage": "bkcrack",
+      "docsUrl": "https://github.com/kimci86/bkcrack",
+      "canAutoInstall": true,
+      "verifyCommand": "bkcrack",
+      "kaliNote": "传统 ZipCrypto 已知明文攻击工具；Kali/Debian 可通过 apt 安装。"
     }
   ]
 }
