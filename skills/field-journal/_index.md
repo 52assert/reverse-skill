@@ -6,9 +6,9 @@
 
 ## 统计
 
-- 真实项目数：12
+- 真实项目数：13
 - 种子参考数：17
-- 总条目数：29
+- 总条目数：30
 
 ## 按场景分类
 
@@ -19,6 +19,7 @@
 
 ### 二进制 / 固件 / CTF
 
+- [2026-08-07 闭源 Rust cdylib 差分复现: 核心算法/LED 灯光字节码/打包器/operations 全逐位一致](./2026-08-07_closed-rust-cdylib-diff-reimpl.md)
 - [2026-08-06_cortex-m-msc-firmware-self-keyed-rotate-xor](./2026-08-06_cortex-m-msc-firmware-self-keyed-rotate-xor.md)
 - [2026-07-14_android-arm64-self-extract-source-recovery](./2026-07-14_android-arm64-self-extract-source-recovery.md)
 - [2026-05-15_lumine-go-reverse](./2026-05-15_lumine-go-reverse.md)
