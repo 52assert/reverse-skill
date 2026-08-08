@@ -509,7 +509,18 @@ ensure_capability() {
                 "$proxycat_dir"
             pip3 install --upgrade -r "$proxycat_dir/requirements.txt" --break-system-packages 2>/dev/null \
                 || pip3 install --upgrade -r "$proxycat_dir/requirements.txt"
-            log_info "ProxyCat source installed at $proxycat_dir (run: python3 $proxycat_dir/ProxyCat.py)"
+            local proxycat_bin_dir="$HOME/.local/bin"
+            local proxycat_wrapper="$proxycat_bin_dir/proxycat"
+            mkdir -p "$proxycat_bin_dir"
+            cat > "$proxycat_wrapper" <<EOF
+#!/usr/bin/env bash
+exec python3 "$proxycat_dir/ProxyCat.py" "\$@"
+EOF
+            chmod 0755 "$proxycat_wrapper"
+            log_info "ProxyCat installed at pinned commit; command wrapper: $proxycat_wrapper"
+            if [[ ":$PATH:" != *":$proxycat_bin_dir:"* ]]; then
+                log_warn "Add $proxycat_bin_dir to PATH before using the proxycat command."
+            fi
             ;;
         pwntools)
             install_pip_package "pwntools==4.15.0"

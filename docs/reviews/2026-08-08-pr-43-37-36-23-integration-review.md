@@ -25,7 +25,7 @@ flowchart LR
     A --> R["routing.json 单一事实源"]
     P["PowerShell router"] --> R
     B["Bash router"] --> R
-    R --> S["41 条路由 / 54 个技能模块"]
+    R --> S["41 条路由 / 42 个已跟踪技能模块"]
     R --> T["163 条回归基准"]
     T --> W["Windows CI"]
     T --> L["Linux CI"]
@@ -38,6 +38,22 @@ flowchart LR
 3. #36 的桥接重连和 token 写入是净增益；其能力状态改写会制造假阳性，未合并。
 4. #23 的 Bash router 原样复制硬编码表，会立刻与 #43 的 R40/priority 漂移；已重写为读取 `routing.json`，并在 CI 校验 R1/R3/R40 parity。
 5. 新 supply-chain gate 暴露 Kali manifest 的 7 个浮动安装源。已固定 Frida 14.10.4、IDA MCP commit、Agent Browser 0.31.1、ProxyCat commit、Nuclei v3.8.0、pwntools 4.15.0，并让安装命令实际使用这些 pin。
+6. 推送后强制复审发现 Bash `case-init` 未继承 CaseName 路径约束；已拒绝路径、控制字符、通配符与尾随点/空格，并加入负向 CI。
+7. Bash 的授权 URL 曾错误落入 `offline` 且可能 ready；已与 PowerShell 对齐为 `authorized_target_only`，明确 offline 只接受本地样本。
+8. Bash `case-guard` 现只从 `auth`、`network_profile`、`signoff` 对应章节取值，notes/证据中的伪字段不能通过门禁。
+9. Kali ProxyCat 固定源码安装现会生成可探测的 `~/.local/bin/proxycat` wrapper；CI checkout 也从可变 tag 固定到 v4.2.2 commit。
+10. 原动态 INDEX 在开发机误收录了 12 个 `.gitignore` 排除的本地模块，干净 clone 会失败；生成器现只枚举 Git 已跟踪 skill，clean clone 与带私有扩展的工作区都稳定为 42 个核心模块。
+
+## 相对旧主线的量化提升
+
+使用同一组 163 条基准分别调用旧主线硬编码 router 与新结构化 router，每条均在独立 PowerShell 进程运行：
+
+| 版本 | 通过 | 准确率 | 无输出 |
+|---|---:|---:|---:|
+| 旧主线 `6315d02` | 137 / 163 | 84.05% | 0 |
+| 当前结构化实现 | 163 / 163 | 100% | 0 |
+
+绝对增加 26 条正确路由、提升 15.95 个百分点。改善覆盖 Frida/Android、证书与 root 检测、抓包重放、勒索软件、Burp/Metasploit、Go 二进制、BLE、USB、native `.so`、内存 dump 等旧实现会回退 R0 的场景。
 
 ## 验证结果
 
@@ -47,6 +63,7 @@ flowchart LR
 | 路由一致性与供应链 pin gate | 通过 |
 | PowerShell smoke | 通过 |
 | P0 friction / scope-guard 回归 | 通过 |
+| 旧版/新版 163 条 A/B | 137/163 → 163/163 |
 | case-review Python 单测 | 7 / 7 通过 |
 | Burp bridge Node 回归 | 1 / 1 通过 |
 | Bash router/case-init/case-guard parity | 通过 |

@@ -28,6 +28,18 @@ if (Test-Path -LiteralPath $routingJson) {
     if ($rjRoutes.Count -ge 30) { Ok "routing.json routes=$($rjRoutes.Count)" } else { Bad 'routing.json route count suspicious (<30)' }
     $badRoute = @($rjRoutes | Where-Object { -not $_.Value.label -or -not $_.Value.skill -or -not $_.Value.keywords })
     if ($badRoute.Count -eq 0) { Ok 'routing.json: all routes have label/skill/keywords' } else { Bad "routing.json routes missing fields: $($badRoute.Name -join ',')" }
+    $missingRouteSkills = @($rjRoutes | Where-Object {
+        -not (Test-Path -LiteralPath (Join-Path $skillsRoot ($_.Value.skill -replace '/', [IO.Path]::DirectorySeparatorChar)) -PathType Leaf)
+    })
+    if ($missingRouteSkills.Count -eq 0) { Ok 'routing.json: all route skills exist' } else { Bad "routing.json missing skill files: $($missingRouteSkills.Name -join ',')" }
+    $git = Get-Command git -ErrorAction SilentlyContinue
+    if ($git) {
+        $trackedSkills = @(& $git.Source -C $packageRoot ls-files -- 'skills/**/SKILL.md')
+        if ($LASTEXITCODE -eq 0) {
+            $untrackedRouteSkills = @($rjRoutes | Where-Object { ('skills/' + $_.Value.skill) -notin $trackedSkills })
+            if ($untrackedRouteSkills.Count -eq 0) { Ok 'routing.json: all route skills are tracked' } else { Bad "routing.json references untracked skills: $($untrackedRouteSkills.Name -join ',')" }
+        }
+    }
     $routeIds = @($rjRoutes | ForEach-Object { $_.Name })
     $missingPrio = @($routeIds | Where-Object { $_ -notin @($rj.priority) })
     $extraPrio = @($rj.priority | Where-Object { $_ -notin $routeIds })

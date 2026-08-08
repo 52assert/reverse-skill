@@ -82,6 +82,27 @@ if [[ -z "$CASE_NAME" ]]; then
   CASE_NAME="$(date +%Y%m%d-%H%M%S)-${slug}"
 fi
 
+# CaseName is a directory name, never a path. Match the PowerShell guard while
+# keeping localized letters available under UTF-8 locales.
+case_name_length="$(printf '%s' "$CASE_NAME" | wc -m | tr -d '[:space:]')"
+if [[ -z "$CASE_NAME" || "$case_name_length" -gt 80 ||
+      ! "$CASE_NAME" =~ ^[[:alnum:]] ||
+      "$CASE_NAME" =~ [/:\\*?\"\<\>\|] ||
+      "$CASE_NAME" =~ [[:cntrl:]] ||
+      "$CASE_NAME" =~ [\.[:space:]]$ ]]; then
+  echo "Invalid --case-name '$CASE_NAME'. Use a 1-80 character directory name beginning with a letter or number; path separators, trailing dots/spaces, control characters, and wildcard characters are not allowed." >&2
+  exit 2
+fi
+if [[ -n "$NETWORK_PROFILE" ]]; then
+  case "${NETWORK_PROFILE,,}" in
+    offline|lab_only|authorized_target_only|unrestricted_lab|lab|authorized|auth|offline_only) ;;
+    *)
+      echo "Invalid --network-profile '$NETWORK_PROFILE'. Allowed: offline, lab_only, authorized_target_only, unrestricted_lab (aliases: lab, authorized, auth, offline_only)." >&2
+      exit 2
+      ;;
+  esac
+fi
+
 CASE_ROOT="$PACKAGE_ROOT/work/$CASE_NAME"
 mkdir -p "$CASE_ROOT/evidence" "$CASE_ROOT/notes" "$CASE_ROOT/report"
 
@@ -116,7 +137,25 @@ if [[ ${#ASSETS[@]} -eq 0 && "$HINT" =~ https?://([^[:space:]/]+) ]]; then
   ASSETS+=("https://${BASH_REMATCH[1]}/")
 fi
 
-network_mode="${NETWORK_PROFILE:-offline}"
+if [[ -n "$NETWORK_PROFILE" ]]; then
+  network_mode="$NETWORK_PROFILE"
+elif [[ "$auth_status_resolved" == "granted" && ${#ASSETS[@]} -gt 0 && -z "$SAMPLE" ]]; then
+  # Authorized network targets follow the PowerShell default. Offline is
+  # reserved for an explicit local sample, never for a URL by accident.
+  network_mode="authorized_target_only"
+else
+  network_mode="offline"
+fi
+case "${network_mode,,}" in
+  lab) network_mode="lab_only" ;;
+  authorized|auth) network_mode="authorized_target_only" ;;
+  offline_only) network_mode="offline" ;;
+  offline|lab_only|authorized_target_only|unrestricted_lab) network_mode="${network_mode,,}" ;;
+  *)
+    echo "Invalid --network-profile '$network_mode'. Allowed: offline, lab_only, authorized_target_only, unrestricted_lab (aliases: lab, authorized, auth, offline_only)." >&2
+    exit 2
+    ;;
+esac
 
 # Route PRIMARY via bash master-route
 ROUTE_TMP="$(mktemp -d "${TMPDIR:-/tmp}/rs-case-route.XXXXXX")"
@@ -146,10 +185,11 @@ else
 fi
 
 ready=false
-if [[ "$auth_status_resolved" == "granted" && ( ${#ASSETS[@]} -gt 0 || "$network_mode" == "offline" ) ]]; then
-  # offline without assets still not ready unless sample cue exists in hint/sample
-  if [[ ${#ASSETS[@]} -gt 0 ]]; then ready=true
-  elif [[ "$network_mode" == "offline" && ( -n "$SAMPLE" || "$HINT" =~ \.(apk|bin|exe|so|dll|ipa) ) ]]; then ready=true
+if [[ "$auth_status_resolved" == "granted" ]]; then
+  if [[ "$network_mode" == "offline" ]]; then
+    if [[ -n "$SAMPLE" && ${#ASSETS[@]} -gt 0 ]]; then ready=true; fi
+  elif [[ ${#ASSETS[@]} -gt 0 ]]; then
+    ready=true
   fi
 fi
 

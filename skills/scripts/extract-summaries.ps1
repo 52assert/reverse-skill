@@ -14,12 +14,29 @@ if (-not $scriptDir) { $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.P
 $skillsRoot = Split-Path -Parent $scriptDir
 $indexPath = Join-Path $skillsRoot 'INDEX.md'
 
-# 扫描模块 SKILL.md（排除主 SKILL.md、ops/scripts/config/tests 等非模块目录）
+# 扫描版本库中的模块 SKILL.md（排除本地 ignored/private trees，保证 clean clone 与开发机幂等）。
 $skipDirs = @('ops', 'scripts', 'config', 'tests', 'field-journal', 'references')
-$skillFiles = Get-ChildItem -Path $skillsRoot -Recurse -Filter 'SKILL.md' | Where-Object {
+$packageRoot = Split-Path -Parent $skillsRoot
+$trackedSkillFiles = @()
+$git = Get-Command git -ErrorAction SilentlyContinue
+if ($git) {
+    $trackedPaths = @(& $git.Source -C $packageRoot ls-files -- 'skills/**/SKILL.md')
+    if ($LASTEXITCODE -eq 0) {
+        $trackedSkillFiles = @($trackedPaths | ForEach-Object {
+            $fullPath = Join-Path $packageRoot ($_ -replace '/', [IO.Path]::DirectorySeparatorChar)
+            if (Test-Path -LiteralPath $fullPath -PathType Leaf) { Get-Item -LiteralPath $fullPath }
+        })
+    }
+}
+$candidateSkillFiles = if ($trackedSkillFiles.Count -gt 0) {
+    $trackedSkillFiles
+} else {
+    @(Get-ChildItem -Path $skillsRoot -Recurse -Filter 'SKILL.md')
+}
+$skillFiles = $candidateSkillFiles | Where-Object {
     $rel = $_.FullName.Substring($skillsRoot.Length + 1)
     $rel -ne 'SKILL.md' -and -not ($skipDirs | Where-Object { $rel.StartsWith($_ + '\') -or $rel.StartsWith($_ + '/') })
-} | Sort-Object FullName
+} | Sort-Object { $_.FullName.Substring($skillsRoot.Length + 1) }
 
 $rows = New-Object System.Collections.ArrayList
 foreach ($sf in $skillFiles) {

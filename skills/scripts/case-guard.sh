@@ -39,26 +39,50 @@ fi
 SCOPE="$(cat "$SCOPE_PATH")"
 ISSUES=()
 
-if printf '%s' "$SCOPE" | grep -Eq '(?m)^\s*-\s*status:\s*granted\s*$' 2>/dev/null; then
-  :
-fi
-# portable: no PCRE required
+# Read fields only from their contract sections. A status-like line in notes,
+# evidence, or ops_refs must never satisfy the authorization gate.
+section_field() {
+  local section="$1"
+  local field="$2"
+  awk -v wanted_section="$section" -v wanted_field="$field" '
+    /^##[[:space:]]+/ {
+      heading=$0
+      sub(/^##[[:space:]]+/, "", heading)
+      active=(tolower(heading)==tolower(wanted_section))
+      next
+    }
+    active {
+      line=$0
+      pattern="^[[:space:]]*-[[:space:]]*" wanted_field ":[[:space:]]*"
+      if (line ~ pattern) {
+        sub(pattern, "", line)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+        print line
+        exit
+      }
+    }
+  ' "$SCOPE_PATH"
+}
+
 auth_granted=0
-if printf '%s\n' "$SCOPE" | grep -Eiq '^[[:space:]]*-[[:space:]]*status:[[:space:]]*granted[[:space:]]*$'; then
-  auth_granted=1
-elif printf '%s\n' "$SCOPE" | grep -Eiq '^[[:space:]]*status:[[:space:]]*granted[[:space:]]*$'; then
+if [[ "$(section_field auth status | tr '[:upper:]' '[:lower:]')" == "granted" ]]; then
   auth_granted=1
 fi
 [[ $auth_granted -eq 1 ]] || ISSUES+=("auth.status is not granted")
 
-net_mode=""
-net_mode="$(printf '%s\n' "$SCOPE" | grep -E '^[[:space:]]*-[[:space:]]*mode:[[:space:]]*\S+' | head -1 | sed -E 's/^[[:space:]]*-[[:space:]]*mode:[[:space:]]*//' | tr -d '\r' | awk '{print $1}')"
+net_mode="$(section_field network_profile mode | tr -d '\r' | awk '{print $1}')"
 if [[ -z "$net_mode" ]]; then
   ISSUES+=("network_profile.mode missing")
-elif [[ "$net_mode" == "offline" ]]; then
-  if ! printf '%s' "$SCOPE" | grep -Eiq 'sample|offline.?path|本地.?样本|\.apk\b|\.bin\b|\.exe\b'; then
-    ISSUES+=("network_profile.mode is offline without offline sample cue")
-  fi
+else
+  case "$net_mode" in
+    offline)
+      if ! printf '%s' "$SCOPE" | grep -Eiq 'sample|offline.?path|本地.?样本|\.apk\b|\.bin\b|\.exe\b'; then
+        ISSUES+=("network_profile.mode is offline without offline sample cue")
+      fi
+      ;;
+    lab_only|authorized_target_only|unrestricted_lab) ;;
+    *) ISSUES+=("network_profile.mode is unsupported: $net_mode") ;;
+  esac
 fi
 
 has_asset=0
@@ -82,7 +106,7 @@ if [[ $has_asset -eq 0 && "$net_mode" != "offline" ]]; then
 fi
 
 ready=0
-if printf '%s\n' "$SCOPE" | grep -Eiq '^[[:space:]]*-[[:space:]]*ready_for_act:[[:space:]]*true[[:space:]]*$'; then
+if [[ "$(section_field signoff ready_for_act | tr '[:upper:]' '[:lower:]')" == "true" ]]; then
   ready=1
 fi
 [[ $ready -eq 1 ]] || ISSUES+=("ready_for_act is not true")

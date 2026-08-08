@@ -299,6 +299,65 @@ Set-Content (Join-Path $ghostCase 'scope.md') $ghostScope -Encoding UTF8
 if ($LASTEXITCODE -eq 2) { Ok 'case-guard rejects empty assets despite ops_refs URLs' }
 else { Bad "case-guard should fail empty assets; exit=$LASTEXITCODE" }
 
+# 14a) Auth/signoff fields outside their contract sections must not satisfy gate.
+$sectionCase = Join-Path $ScratchDir 'case-guard-section-scope'
+New-Item -ItemType Directory -Force -Path $sectionCase | Out-Null
+$sectionScope = @'
+# Case Scope
+## auth
+- status: pending
+## in_scope
+- assets:
+  - https://example.test/
+## network_profile
+- mode: authorized_target_only
+## signoff
+- ready_for_act: false
+## notes
+- status: granted
+- ready_for_act: true
+'@
+Set-Content (Join-Path $sectionCase 'scope.md') $sectionScope -Encoding UTF8
+& powershell -NoProfile -ExecutionPolicy Bypass -File $cg -CaseRoot $sectionCase 2>&1 | Out-Null
+if ($LASTEXITCODE -eq 2) { Ok 'case-guard scopes auth/signoff fields to contract sections' }
+else { Bad "case-guard accepted forged fields from notes; exit=$LASTEXITCODE" }
+
+$networkCase = Join-Path $ScratchDir 'case-guard-invalid-network'
+New-Item -ItemType Directory -Force -Path $networkCase | Out-Null
+$networkScope = @'
+# Case Scope
+## auth
+- status: granted
+## in_scope
+- assets:
+  - https://example.test/
+## network_profile
+- mode: internet
+## signoff
+- ready_for_act: true
+'@
+Set-Content (Join-Path $networkCase 'scope.md') $networkScope -Encoding UTF8
+& powershell -NoProfile -ExecutionPolicy Bypass -File $cg -CaseRoot $networkCase 2>&1 | Out-Null
+if ($LASTEXITCODE -eq 2) { Ok 'case-guard rejects unsupported network mode' }
+else { Bad "case-guard accepted unsupported network mode; exit=$LASTEXITCODE" }
+
+$invalidNetworkName = 'p0-invalid-network-' + (Get-Date -Format 'HHmmss')
+$invalidNetworkProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList @(
+    '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $ci,
+    '-Hint', 'authorized web review',
+    '-CaseName', $invalidNetworkName,
+    '-PackageRoot', $PackageRoot,
+    '-AuthGranted',
+    '-TargetUrl', 'https://example.test/',
+    '-NetworkProfile', 'internet'
+) -Wait -PassThru -WindowStyle Hidden
+$invalidNetworkRoot = Join-Path $PackageRoot ("work\{0}" -f $invalidNetworkName)
+if ($invalidNetworkProcess.ExitCode -ne 0 -and -not (Test-Path -LiteralPath $invalidNetworkRoot)) {
+    Ok 'case-init rejects unsupported network profile before writing case'
+} else {
+    Bad 'case-init accepted unsupported network profile or wrote a partial case'
+}
+
 # 14b) CaseName must remain a single safe directory name under work/.
 $invalidCaseNames = @('..\case-escape', '../case-escape', 'case/name', 'case:name', '.. ', 'case.')
 $workRoot = Join-Path $PackageRoot 'work'

@@ -16,18 +16,6 @@
 | [case-review](case-review/SKILL.md) | Reviews a reverse-skill case package for scope readiness, Evidence to Finding to Path traceability, work item coverage, timeline references, and optional art... |
 | [cloud-k8s](cloud-k8s/SKILL.md) | Use for authorized cloud, container, and Kubernetes security assessment including metadata SSRF, IAM misconfig, container escape paths, and cluster RBAC review. |
 | [code-audit](code-audit/SKILL.md) | Use for authorized source-code security review and SAST workflows including Semgrep, CodeQL patterns, dangerous API hunting, and fix verification. |
-| [crypto-re](crypto-analysis/crypto-re/SKILL.md) | 逆向工程中的密码学还原：二进制/so/JS 定位算法、抽密钥、复现加解密。触发：逆向加密、S-box、JNI 加密、魔改 AES。 |
-| [crypto-hash](crypto-analysis/hash/SKILL.md) | 哈希/MAC/KDF/口令存储：识别、破解、长度扩展、慢哈希审计。触发：MD5、SHA、bcrypt、Hashcat、HMAC。 |
-| [crypto-identify](crypto-analysis/identify/SKILL.md) | 密文/编码自动识别与分诊。触发：未知密文、Ciphey、CyberChef、Base64、古典密码、hash 识别前的分流。 |
-| [crypto-lattice](crypto-analysis/lattice/SKILL.md) | 格密码分析与高阶 CTF：LLL/BKZ、HNP、Coppersmith、偏置 nonce。触发：lattice、LLL、Coppersmith、HNP、偏置 k。 |
-| [crypto-padding-oracle](crypto-analysis/padding-oracle/SKILL.md) | 填充预言机与解密侧信道：CBC padding oracle、时序、错误码区分。触发：padding oracle、Lucky13、POODLE、CBC 填充。 |
-| [crypto-pqc](crypto-analysis/pqc/SKILL.md) | 后量子密码迁移与审计：NIST ML-KEM/ML-DSA/SLH-DSA、混合 TLS、crypto-agility。触发：后量子、PQC、Kyber、Dilithium、抗量子、PQC 迁移。 |
-| [crypto-protocol](crypto-analysis/protocol/SKILL.md) | 协议与应用密码误用：JWT、TLS、自定义握手、会话。触发：JWT alg none、TLS 降级、密钥交换、握手重放。 |
-| [crypto-rsa](crypto-analysis/rsa/SKILL.md) | RSA 攻击与审计：弱参数、共模、Wiener、RsaCtfTool、factordb、填充。触发：RSA、n、e、PEM、私钥恢复。 |
-| [crypto-signatures](crypto-analysis/signatures/SKILL.md) | 数字签名与 ECC：ECDSA/EdDSA/Schnorr、nonce 复用、偏置 k、点验证。触发：ECDSA、secp256k1、nonce reuse、签名伪造。 |
-| [crypto-analysis](crypto-analysis/SKILL.md) | > |
-| [crypto-symmetric](crypto-analysis/symmetric/SKILL.md) | 对称密码与流密码：AES/DES/ChaCha/XOR、ECB/CBC/CTR/GCM 误用。触发：AES、ECB、CBC、XOR、密钥流、S-box。 |
-| [crypto-web3](crypto-analysis/web3-crypto/SKILL.md) | Web3/链上密码学：secp256k1 ECDSA、BLS、钱包 RNG、合约 ecrecover。触发：链上签名、k 复用、BLS、钱包私钥泄漏密码侧。 |
 | [database-security](database-security/SKILL.md) | Use for authorized database security assessment covering PostgreSQL/MySQL/MSSQL/Mongo/Redis exposure, authz, UDF/command paths, and misconfiguration review. |
 | [diagram-generator](diagram-generator/SKILL.md) | generate, refine, validate, and render diagrams from natural language, notes, code snippets, schemas, tables, or existing diagram source. use for flowcharts,... |
 | [digital-forensics](digital-forensics/SKILL.md) | Use for authorized digital forensics including memory dumps, disk timelines, PCAP investigation, artifact triage, and IR evidence preservation. |
@@ -74,18 +62,6 @@ skills/browser-extension-reverse/SKILL.md/
 skills/case-review/SKILL.md/
 skills/cloud-k8s/SKILL.md/
 skills/code-audit/SKILL.md/
-skills/crypto-analysis/crypto-re/SKILL.md/
-skills/crypto-analysis/hash/SKILL.md/
-skills/crypto-analysis/identify/SKILL.md/
-skills/crypto-analysis/lattice/SKILL.md/
-skills/crypto-analysis/padding-oracle/SKILL.md/
-skills/crypto-analysis/pqc/SKILL.md/
-skills/crypto-analysis/protocol/SKILL.md/
-skills/crypto-analysis/rsa/SKILL.md/
-skills/crypto-analysis/signatures/SKILL.md/
-skills/crypto-analysis/SKILL.md/
-skills/crypto-analysis/symmetric/SKILL.md/
-skills/crypto-analysis/web3-crypto/SKILL.md/
 skills/database-security/SKILL.md/
 skills/diagram-generator/SKILL.md/
 skills/digital-forensics/SKILL.md/
