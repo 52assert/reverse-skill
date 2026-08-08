@@ -82,6 +82,8 @@ $opsFiles = @(
     'scripts\master-route.ps1',
     'scripts\case-init.ps1',
     'scripts\lib\WorkRoot.ps1',
+    'case-review/SKILL.md',
+    'case-review/scripts/review_case.py',
     'docs-generator/references\security-report-templates.md',
     'field-journal/_template.md'
 )
@@ -167,6 +169,7 @@ Assert-Fields (Join-Path $skillsRoot 'reverse-engineering/references\re-agent-wo
 Assert-Fields (Join-Path $skillsRoot 'pentest-tools/references\recon-pipeline.md') @('auth.status', 'network_profile', 'Evidence', 'nuclei')
 Assert-Fields (Join-Path $skillsRoot 'docs-generator/references\security-report-templates.md') @('Evidence Chain', 'Findings', 'Path')
 Assert-Fields (Join-Path $skillsRoot 'field-journal/_template.md') @('Scope', 'Evidence', 'Finding')
+Assert-Fields (Join-Path $skillsRoot 'case-review/SKILL.md') @('ACTION REQUIRED', 'review_case.py', 'Evidence Graph Review')
 $fieldLog | Set-Content -LiteralPath (Join-Path $ScratchDir 'template-fields.txt') -Encoding UTF8
 
 # --- role map skills exist for primary rows ---

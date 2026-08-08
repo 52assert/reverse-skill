@@ -288,6 +288,13 @@
         { "must": "\\bsdr\\b|hackrf|rtl-?sdr|gnu.?radio|\\burh\\b|射频|软件.?无线电|蓝牙|bluetooth|\\bble\\b", "note": "蓝牙/BLE 归射频研究" }
       ]
     },
+    "R40": {
+      "label": "Case evidence review",
+      "skill": "case-review/SKILL.md",
+      "keywords": [
+        { "must": "case.?review|case.?audit|evidence.?chain|evidence.?graph|traceability|fixity.?check|证据.?链|证据.?图|可追溯性|案件.?审查|案例.?审计" }
+      ]
+    },
     "R0": {
       "label": "General reverse-engineering",
       "skill": "reverse-engineering/SKILL.md",
@@ -302,6 +309,6 @@
     "R4", "R1", "R2", "R3", "R30", "R31", "R33", "R5", "R9", "R21",
     "R22", "R6", "R7", "R8", "R34", "R28", "R17", "R16", "R18", "R24",
     "R37", "R23", "R35", "R25", "R36", "R29", "R38", "R32", "R26", "R27",
-    "R10", "R11", "R12", "R13", "R14", "R15", "R19", "R20", "R39", "R0"
+    "R10", "R11", "R12", "R13", "R14", "R15", "R19", "R40", "R20", "R39", "R0"
   ]
 }

@@ -815,6 +815,11 @@
                       "hint":  "风险评估",
                       "expect":  "R11",
                       "quick":  false
+                  },
+                  {
+                      "hint":  "case review evidence chain traceability",
+                      "expect":  "R40",
+                      "quick":  true
                   }
               ]
 }

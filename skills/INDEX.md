@@ -13,6 +13,7 @@
 | [binary-diff](binary-diff/SKILL.md) | 跨版本符号迁移与二进制差分。当你有旧版本的符号/逆向结果，需要快速迁移到新版本时使用。 |
 | [browser-automation](browser-automation/SKILL.md) | 统一自动化入口。覆盖浏览器自动化（Playwright）和 Windows 桌面应用自动化（OpenReverse）。 |
 | [browser-extension-reverse](browser-extension-reverse/SKILL.md) | Use for authorized reverse engineering of browser extensions (Chrome/Firefox) including manifest analysis, background workers, and extension-based credential... |
+| [case-review](case-review/SKILL.md) | Reviews a reverse-skill case package for scope readiness, Evidence to Finding to Path traceability, work item coverage, timeline references, and optional art... |
 | [cloud-k8s](cloud-k8s/SKILL.md) | Use for authorized cloud, container, and Kubernetes security assessment including metadata SSRF, IAM misconfig, container escape paths, and cluster RBAC review. |
 | [code-audit](code-audit/SKILL.md) | Use for authorized source-code security review and SAST workflows including Semgrep, CodeQL patterns, dangerous API hunting, and fix verification. |
 | [crypto-re](crypto-analysis/crypto-re/SKILL.md) | 逆向工程中的密码学还原：二进制/so/JS 定位算法、抽密钥、复现加解密。触发：逆向加密、S-box、JNI 加密、魔改 AES。 |
@@ -70,6 +71,7 @@ skills/attack-chain/SKILL.md/
 skills/binary-diff/SKILL.md/
 skills/browser-automation/SKILL.md/
 skills/browser-extension-reverse/SKILL.md/
+skills/case-review/SKILL.md/
 skills/cloud-k8s/SKILL.md/
 skills/code-audit/SKILL.md/
 skills/crypto-analysis/crypto-re/SKILL.md/

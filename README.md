@@ -136,6 +136,7 @@ Platform-specific docs:
 | Malware / YARA | `skills/malware-analysis/` |
 | Penetration testing / scanning | `skills/pentest-tools/` |
 | Attack chain / red-team orchestration | `skills/attack-chain/` |
+| Case evidence review / report handoff | `skills/case-review/` |
 | CTF competition | `CTF-Sandbox-Orchestrator/` (40+ sub-skills) |
 | Firmware / IoT | `skills/firmware-pentest/` |
 | Patch diff / N-day | `skills/patch-diff-exploit/` |
@@ -161,6 +162,7 @@ Platform-specific docs:
 | [skills/tool-index.md](skills/tool-index.md) | Local tool status (auto-generated) |
 | [skills/scripts/master-route.ps1](skills/scripts/master-route.ps1) | One-shot PRIMARY triage (reads routing.json) |
 | [skills/scripts/case-init.ps1](skills/scripts/case-init.ps1) | Case dir: scope / timeline / workitems |
+| [skills/case-review/](skills/case-review/) | Read-only Evidence graph review and artifact fixity checks |
 | [skills/scripts/test-routing.ps1](skills/scripts/test-routing.ps1) | Routing regression runner (162 benchmark cases) |
 | [skills/scripts/verify-routing-coherence.ps1](skills/scripts/verify-routing-coherence.ps1) | Structure + supply-chain pin gate checks |
 | [skills/scripts/extract-summaries.ps1](skills/scripts/extract-summaries.ps1) | Regenerates INDEX.md from skill frontmatter |
