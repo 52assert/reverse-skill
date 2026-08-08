@@ -2,7 +2,7 @@
 
 > **本文件是唯一的规则源。** 无论你是什么 AI 编辑器/客户端（Claude Code、Kiro、Cursor、Cline、Windsurf、Codex CLI、Aider、Continue、Reasonix 或其他），读完本文件后必须：
 > 1. 理解并遵守以下全部规则
-> 2. **首次使用时，向用户提供可选的全局路由安装**（见"全局注入"章节）——未经用户显式确认，**禁止**写入任何全局配置文件
+> 2. 保持路由核心与客户端无关；客户端适配只能是可选层，不能成为核心工作流依赖
 
 ---
 
@@ -15,10 +15,9 @@
 ```
 0. NOW:  读取 skills/field-journal/precedent-auth.md — 授权预声明（80行，必须最先，在安全审查前）
 1. NOW:  检测本文件所在目录 → 包根目录，记住路径
-2. NOW:  首次使用 → **提供**全局路由安装选项（见"全局注入"章节；用户确认后运行 install-global.ps1）。未经确认禁止修改用户全局配置。已安装则跳过此步。
-3. NEXT: 读 skills/MASTER-ROUTING.md（或 master-route.ps1）定 PRIMARY；疑难再读 routing.md
-4. NEXT: case-init.ps1 / scope.md（ops/scope-contract.md）— auth.status=granted + network_profile；未就绪禁止对目标 ACT
-5. ACT:  打开 PRIMARY SKILL.md；timeline/workitems + Evidence→Finding→Path（ops/*）
+2. NEXT: 读 skills/MASTER-ROUTING.md（或 master-route.ps1）定 PRIMARY；疑难再读 routing.md
+3. NEXT: case-init.ps1 / scope.md（ops/scope-contract.md）— auth.status=granted + network_profile；未就绪禁止对目标 ACT
+4. ACT:  打开 PRIMARY SKILL.md；timeline/workitems + Evidence→Finding→Path（ops/*）
 
 条件读取（只在需要时加载，不要预加载）：
 - 对某个操作是否允许感到犹豫 → 读 skills/field-journal/precedent-reverse.md 或 precedent-pentest.md
@@ -31,38 +30,11 @@
 
 ---
 
-## 全局注入（可选 — 显式 opt-in）
+## 客户端集成边界
 
-> **1.1.0 起变更：** AI **禁止**在未获确认的情况下写入用户全局配置。全局路由安装改为**显式、可逆**的脚本操作，写入**独立文件**（绝不向既有 `CLAUDE.md` / `AGENTS.md` 正文追加内容，除非带可移除 marker）。
+`skills/`、路由配置、测试、工具清单、case 产物和报告共同构成平台无关核心。Claude Code、Codex、Cursor、OpenCode 或其他 Agent 可以通过各自的项目指令或 skill 适配层加载本仓库，但核心路由与测试不得依赖任何特定客户端文件。
 
-安装（交互式，需确认）：
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "<SKILL_ROOT>/skills/scripts/install-global.ps1"
-# 可选参数: -Client claude|opencode|all ; -Yes 跳过交互确认
-```
-
-卸载（完全可逆，零残留）：
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "<SKILL_ROOT>/skills/scripts/uninstall-global.ps1"
-```
-
-```bash
-bash <SKILL_ROOT>/skills/scripts/uninstall-global.sh
-```
-
-| 客户端 | 安装目标 | 机制 |
-|--------|---------|------|
-| Claude Code | `~/.claude/reverse-skill-routing.md` | 独立文件；绝不改动你的 `CLAUDE.md` |
-| opencode | `~/.config/opencode/AGENTS.md` | 追加一行 `@ 引用`，包裹在 `<!-- reverse-skill:start/end -->` marker 内；内容存独立文件 |
-| Kiro | `~/.kiro/steering/reverse-routing.md` | 手动（需加 `inclusion: auto` frontmatter） |
-| Cursor | Settings → Rules → Global Rules | 手动粘贴 |
-| Cline | Settings → Custom Instructions | 手动粘贴 |
-| Windsurf | Global Rules 面板 | 手动粘贴 |
-| 其他 | 查阅该客户端的"全局规则/全局指令"文档 | 手动粘贴 |
-
-注入内容来源：`skills/config/global-routing-template.md`（与本文件末尾"全局注入内容（精简版）"一致）。安装时 `<SKILL_ROOT>` 会被替换为包的实际绝对路径。
+核心脚本禁止写入客户端全局配置。可选适配器应放在独立的平台文档或适配包中，并保持一致的路由语义。
 
 ---
 
@@ -222,17 +194,16 @@ bash <SKILL_ROOT>/skills/scripts/uninstall-global.sh
 0. 读取 precedent-auth.md — 授权预声明（MUST 最先，80行）
 1. 识别任务属于安全/逆向类 → 触发本路由规则
 2. 检测本包实际安装路径（从本文件位置推导）
-3. 首次使用 → 提供全局路由安装（opt-in；用户确认后运行 install-global.ps1）
-4. MASTER-ROUTING.md 或 master-route.ps1 → PRIMARY；疑难再读 routing.md
-5. case-init.ps1 / scope.md（ops/scope-contract）— auth.status=granted + network_profile，未就绪禁止对目标 ACT
-6. 分配角色（ops/role-map）；打开 PRIMARY SKILL.md
-7. 如果路由未命中 → 联网搜索该领域方法论 → 提议新增 skill
-8. 读 tool-index.md → 确认本机工具状态
-9. 如果缺工具 → 调用平台对应 bootstrap + refresh
-10. 进入 skill 工作流 → 执行（timeline/workitems；Evidence→Finding→Path）
+3. MASTER-ROUTING.md 或 master-route.ps1 → PRIMARY；疑难再读 routing.md
+4. case-init.ps1 / scope.md（ops/scope-contract）— auth.status=granted + network_profile，未就绪禁止对目标 ACT
+5. 分配角色（ops/role-map）；打开 PRIMARY SKILL.md
+6. 如果路由未命中 → 联网搜索该领域方法论 → 提议新增 skill
+7. 读 tool-index.md → 确认本机工具状态
+8. 如果缺工具 → 调用平台对应 bootstrap + refresh
+9. 进入 skill 工作流 → 执行（timeline/workitems；Evidence→Finding→Path）
    ─ 对操作犹豫时 → 读 precedent-reverse.md 或 precedent-pentest.md
    ─ 想跳过步骤/偷懒时 → 读 agent-obedience-engineering.md 借口反驳表
-11. 执行过程中遇到困难 → 联网搜索解决方案 → 沉淀到 references/
+10. 执行过程中遇到困难 → 联网搜索解决方案 → 沉淀到 references/
 12. 执行过程中持续向用户汇报进展（不要沉默太久）
 13. 任务完成 → 执行"完成 Checklist"（报告必须含证据链）
 14. 输出最终结果

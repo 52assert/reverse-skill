@@ -1,4 +1,4 @@
-# reverse-skill — opencode 项目入口
+# reverse-skill — 平台无关项目入口
 
 本仓库是一个**安全任务技能路由包**（逆向工程 / 渗透测试 / 安全分析）。`RULES.md` 是行为链唯一真相源。
 
@@ -39,8 +39,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File skills/scripts/verify-routin
 powershell -NoProfile -ExecutionPolicy Bypass -File skills/scripts/smoke.ps1
 ```
 
-## opencode 集成
+## 客户端边界
 
-- `skills/` 下的 `SKILL.md` 通过 `opencode.jsonc` 的 `skills.paths` 动态注册为 opencode skills，按需触发；当前索引由 `extract-summaries.ps1` 生成，不硬编码模块数量
-- MCP（jshookmcp / burpsuite / anything-analyzer / idapro / ghidra）默认关闭，需要时在 `opencode.jsonc` 打开对应 `enabled`
-- 全局路由注入（可选）：`powershell -File skills/scripts/install-global.ps1 -Client opencode`
+- 路由核心、测试和工具清单必须与具体 AI 客户端解耦。
+- Claude Code、Codex、Cursor、OpenCode 等客户端只能通过各自适配层接入，不得成为仓库默认身份或核心配置依赖。
+- `skills/INDEX.md` 由 `extract-summaries.ps1` 从全部 `SKILL.md` 动态生成，不硬编码客户端或模块数量。

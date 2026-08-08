@@ -122,7 +122,9 @@ Platform-specific docs:
 
 ## Usage
 
-### Supported scenarios| Scenario | Entry |
+### Supported scenarios
+
+| Scenario | Entry |
 |----------|-------|
 | APK / Android analysis | `skills/apk-reverse/` |
 | iOS / mobile | `skills/mobile-reverse/` |
@@ -154,7 +156,7 @@ Platform-specific docs:
 | [skills/MASTER-ROUTING.md](skills/MASTER-ROUTING.md) | PRIMARY fast ladder |
 | [skills/routing.md](skills/routing.md) | Task → skill routing matrix |
 | [skills/SKILL.md](skills/SKILL.md) | Master entry point |
-| [skills/INDEX.md](skills/INDEX.md) | Auto-generated skill navigation index (41 modules) |
+| [skills/INDEX.md](skills/INDEX.md) | Auto-generated, client-neutral skill navigation index |
 | [skills/config/routing.json](skills/config/routing.json) | **Routing single source of truth** (R0–R39 keyword rules) |
 | [skills/tool-index.md](skills/tool-index.md) | Local tool status (auto-generated) |
 | [skills/scripts/master-route.ps1](skills/scripts/master-route.ps1) | One-shot PRIMARY triage (reads routing.json) |
@@ -162,11 +164,7 @@ Platform-specific docs:
 | [skills/scripts/test-routing.ps1](skills/scripts/test-routing.ps1) | Routing regression runner (162 benchmark cases) |
 | [skills/scripts/verify-routing-coherence.ps1](skills/scripts/verify-routing-coherence.ps1) | Structure + supply-chain pin gate checks |
 | [skills/scripts/extract-summaries.ps1](skills/scripts/extract-summaries.ps1) | Regenerates INDEX.md from skill frontmatter |
-| [skills/scripts/install-global.ps1](skills/scripts/install-global.ps1) | **Opt-in** global routing injection (standalone files, reversible) |
-| [skills/scripts/uninstall-global.ps1](skills/scripts/uninstall-global.ps1) | Remove global routing injection (zero residue) |
-| [skills/scripts/install-opencode.ps1](skills/scripts/install-opencode.ps1) | opencode integration check + install |
-| [opencode.jsonc](opencode.jsonc) | opencode project config (skills.paths + MCP registry) |
-| [AGENTS.md](AGENTS.md) | opencode project entry |
+| [AGENTS.md](AGENTS.md) | Platform-neutral repository instructions |
 | [skills/ops/](skills/ops/) | Scope, Evidence chain, roles, timeline (skill-router form) |
 
 ### Testing (run after any routing/config change)
@@ -184,13 +182,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File skills/scripts/extract-summa
 
 GitHub Actions CI runs all of the above on **Windows + Ubuntu** for every push/PR.
 
-### opencode integration
+### Client-neutral integration
 
-- 42 module `SKILL.md` files register as opencode skills via `opencode.jsonc` → `skills.paths`
-- MCP servers (jshookmcp / burpsuite / anything-analyzer / idapro / ghidra) pre-registered, **disabled by default** — flip `enabled: true` per service in `opencode.jsonc` when needed
-- `AGENTS.md` is the opencode project entry; `.opencode/agent/reverse-router.md` is a routing-triage subagent
-- One-shot check/install: `powershell -File skills/scripts/install-opencode.ps1`
-- Global routing injection is **opt-in and reversible** (`install-global.ps1` / `uninstall-global.ps1`) — standalone files, never silently appends to your existing CLAUDE.md / AGENTS.md
+The routing core, regression suite, manifests, and case workflow do not depend on a specific AI client. Claude Code, Codex, Cursor, OpenCode, and other clients should load the repository through their own adapter or project-instruction mechanism. Client-specific configuration must remain optional and outside the core routing contract.
 
 ### Repository layout
 
