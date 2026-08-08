@@ -5,7 +5,9 @@ All notable changes to **reverse-skill** are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/).
 
-## [1.1.0] — 2026-08-02
+## [Unreleased]
+
+## [1.0.1] — 2026-08-08
 
 ### Added
 
@@ -18,6 +20,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **CI pipeline** — `.github/workflows/ci.yml`: Windows + Ubuntu matrix (PowerShell shim for Linux) running test-routing / verify / smoke / INDEX check / JSON validation, plus `bash -n` syntax checks.
 - **Example case** — `examples/ctf-demo/` full workflow walkthrough (route → scope gate → timeline → evidence → report).
 - **frontmatter completion** — `dsl-vm-reverse/SKILL.md` gained name/description frontmatter (was the only module missing it).
+- **README refresh** — updated the multilingual project overview, release badge, current capabilities, and sponsor showcase layout.
 
 ### Fixed
 
@@ -26,8 +29,6 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ### Security
 
 - Core scripts do not write client-global instruction files; client-specific integration remains outside the routing core.
-
-## [Unreleased]
 
 ### Fixed
 
@@ -120,4 +121,6 @@ First **formal** public release of the reverse-skill skill-router pack.
 - Tag: `v1.0.0`
 - Repository: https://github.com/zhaoxuya520/reverse-skill
 
+[Unreleased]: https://github.com/zhaoxuya520/reverse-skill/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/zhaoxuya520/reverse-skill/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/zhaoxuya520/reverse-skill/releases/tag/v1.0.0
