@@ -68,13 +68,6 @@ reports/
 # 运行产物 / 实验垃圾
 master-route-*/
 **/master-route-*/
-frontrun-lab-*/
 mcps/
 # local experiment dirs (never ship)
-crypto-case-*/
-skills/crypto-case-*/
 *-scope-*/
-
-# local-only trees (not reverse-skill core; keep out of git)
-web3-skill/
-skills/crypto-analysis/
