@@ -29,6 +29,7 @@
   <a href="#关于项目">关于</a> ·
   <a href="#快速开始">快速开始</a> ·
   <a href="#使用说明">使用说明</a> ·
+  <a href="https://reverse.apivix.com/docs/">教学文档</a> ·
   <a href="skills/MASTER-ROUTING.md">快路径</a> ·
   <a href="skills/routing.md">路由矩阵</a> ·
   <a href="skills/ops/">作战契约</a> ·
@@ -38,7 +39,9 @@
 </p>
 
 <p align="center">
-  🌐 <a href="README.md">English</a>
+  🌐 <a href="README.md">English</a> ·
+  <a href="https://reverse.apivix.com/">项目官网</a> ·
+  <a href="https://reverse.apivix.com/docs/">在线教学</a>
 </p>
 
 <br/>
