@@ -45,6 +45,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Reconnect the Burp MCP bridge when Burp starts after the bridge and parse one stdio message per line
 - Enable authentication for bootstrapped Anything Analyzer MCP servers and register the bearer token with supported clients
 - Stop each stale IDA MCP process individually before starting a replacement
+- Add Bash case initialization, authorization guard, and a structured router that reads the same `routing.json` as PowerShell
+- Verify Bash routing parity in CI without introducing a client-specific plugin manifest
 
 
 ### Added

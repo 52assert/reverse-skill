@@ -62,3 +62,19 @@ jobs:
             bash -n "$f"
             echo "syntax OK: $f"
           done < <(git ls-files '*.sh')
+
+      - name: Structured routing parity (Bash)
+        shell: bash
+        run: |
+          set -euo pipefail
+          scratch="$(mktemp -d)"
+          trap 'rm -rf "$scratch"' EXIT
+          while IFS='|' read -r hint expected; do
+            out="$scratch/$expected"
+            bash skills/scripts/master-route.sh --hint "$hint" --out-dir "$out"
+            grep -Eq "^- primary: ${expected}$" "$out/route-scope.md"
+          done <<'CASES'
+          apk reverse with jadx|R1
+          js reverse signature|R3
+          case review evidence graph|R40
+          CASES
