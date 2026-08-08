@@ -126,7 +126,7 @@ At present, it is recommended to understand the whole package as two layers:
 ```text
 <package root>\
 ├── README_AI.md                  # The AI bootstrap file you are reading now
-├── CTF-Sandbox-Orchestrator\     # Full CTF competition stack (40+ sub-skills)
+├── CTF-Sandbox-Orchestrator\     # Full CTF competition stack (42 sub-skills)
 └── skills\                       # Main skills directory
     ├── SKILL.md                  # Main controller entry point
     ├── routing.md                # Scenario → skill dispatching (routing matrix)
@@ -156,7 +156,7 @@ If you also use the CTF knowledge base, it is recommended to place it under the 
 ```text
 <package root>\
 ├── skills\                       # Main skills directory
-├── CTF-Sandbox-Orchestrator\     # CTF competition sub-skills (40+)
+├── CTF-Sandbox-Orchestrator\     # CTF competition sub-skills (42)
 └── README_AI.md
 ```
 
