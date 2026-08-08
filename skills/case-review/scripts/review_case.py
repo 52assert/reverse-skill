@@ -150,7 +150,9 @@ def parse_scope(root, issues, strict):
     result["network_mode"] = field_value(network, "mode").lower()
     result["ready_for_act"] = field_value(signoff, "ready_for_act").lower()
 
-    assets_match = re.search(r"(?ms)^\s*-\s+assets:\s*\n(?P<body>.*?)(?=^\s*-\s+[A-Za-z0-9_]+:|\Z)", scope_section)
+    # Only a top-level "- field:" ends the assets block. Indented Windows
+    # paths such as "  - D:\\repo" contain a colon but are asset values.
+    assets_match = re.search(r"(?ms)^\s*-\s+assets:\s*\n(?P<body>.*?)(?=^-\s+[A-Za-z0-9_]+:|\Z)", scope_section)
     if assets_match:
         result["assets"] = [
             line.strip()[2:].strip()

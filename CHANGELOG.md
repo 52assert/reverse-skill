@@ -68,6 +68,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ### Removed
 
 - `game-reverse/` (not a product focus; Unity/IL2CPP remains via `reverse-engineering` + seed-014)
+- Independent Crypto/Web3/on-chain extension packs, their local ignore entries, tool discovery filters, ghost-module checks, and product-specific examples; generic cryptography used by reverse engineering remains in the core RE documentation
 
 ## [1.0.0] — 2026-07-18
 

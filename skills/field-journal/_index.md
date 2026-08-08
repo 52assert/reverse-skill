@@ -6,9 +6,9 @@
 
 ## 统计
 
-- 真实项目数：18
+- 真实项目数：19
 - 种子参考数：17
-- 总条目数：35
+- 总条目数：36
 
 ## 按场景分类
 
@@ -61,6 +61,7 @@
 
 ### 工具链与环境
 
+- [2026-08-08 移除独立链上模块](./2026-08-08_remove-chain-modules.md)
 - [2026-08-08 平台无关结构化路由 PR 集成](./2026-08-08_client-neutral-structured-routing-pr-integration.md)
 - [2026-07-20_reverse-toolchain-windows-bootstrap](./2026-07-20_reverse-toolchain-windows-bootstrap.md)
 

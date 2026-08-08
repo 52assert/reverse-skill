@@ -228,12 +228,6 @@ foreach ($c in $cases) {
     if (-not (Test-Path $abs)) { Bad "missing $($c.Sub)" } else { Ok "exists $($c.Sub)" }
 }
 
-# Core package must not ship extracted/out-of-scope skill module dirs under skills/
-foreach ($ghost in @('blockchain-security', 'bitcoin-puzzle')) {
-    $gp = Join-Path $skillsRoot $ghost
-    if (Test-Path -LiteralPath $gp) { Bad "core must not contain skills/$ghost" } else { Ok "no skills/$ghost" }
-}
-
 # default outdir under work
 $def = & powershell -NoProfile -ExecutionPolicy Bypass -File $masterRoute -Hint 'radare2 analyze' 2>&1 | Out-String
 $def | Set-Content (Join-Path $ScratchDir 'default-out.txt') -Encoding UTF8

@@ -55,26 +55,10 @@ $scriptRefs = @{
 }
 
 $skillsRoot = Split-Path -Parent $PSScriptRoot
-# Skills not part of reverse-skill core (local-only / extracted / never index)
-$bannedSkillExact = @(
-    'blockchain-security',
-    'bitcoin-puzzle',
-    'web3-skill',
-    'web3-crypto',
-    'crypto-analysis'  # optional local tree (often gitignored); do not advertise in core index
-)
-$bannedNameExact = @(
-    'slither', 'myth', 'mythril', 'forge', 'cast',
-    'keyhunt', 'kangaroo', 'bitcrack', 'coincurve'
-)
 
 $reports = @(Get-ReverseToolReport | Where-Object {
     $skill = [string]$_.Skill
-    $name = [string]$_.Name
     $keep = $true
-    if ($bannedNameExact -contains $name) { $keep = $false }
-    if ($bannedSkillExact -contains $skill) { $keep = $false }
-    if ($skill -match 'blockchain|bitcoin-puzzle|web3') { $keep = $false }
     if ($keep -and -not [string]::IsNullOrWhiteSpace($skill)) {
         $skillMd = Join-Path $skillsRoot (($skill -replace '/', [IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar + 'SKILL.md')
         if (-not (Test-Path -LiteralPath $skillMd)) { $keep = $false }

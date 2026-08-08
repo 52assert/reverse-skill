@@ -126,11 +126,6 @@ if ($rt -match 'Origin:' -and $rt -match 'Referer:') { Ok 'recon-pipeline browse
 if ($rt -match 'eth0' -or $rt -match 'nmap -sT') { Ok 'recon-pipeline Windows nmap note' } else { Bad 'recon-pipeline missing nmap note' }
 if ($rt -match 'append-evidence') { Ok 'recon-pipeline Evidence append' } else { Bad 'recon-pipeline missing append-evidence' }
 
-# 6) no web3 product modules
-foreach ($g in @('blockchain-security', 'bitcoin-puzzle')) {
-    if (Test-Path (Join-Path $skillsRoot $g)) { Bad "skills/$g exists" } else { Ok "no skills/$g" }
-}
-
 # 7) verify alone
 $vLog = Join-Path $ScratchDir 'verify.log'
 & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptDir 'verify-routing-coherence.ps1') 2>&1 |
@@ -393,7 +388,6 @@ if (Test-Path $smokeLog) {
 $opt = @(
     "entrypoints: smoke.ps1, case-init.ps1, append-evidence.ps1, case-guard.ps1, case-review/review_case.py, master-route.ps1, verify-routing-coherence.ps1, test-p0-friction.ps1",
     "docs: recon-pipeline.md (Origin/Referer, nmap -sT/eth0, globoff, append-evidence); client-side-lab-playbook.md (innerHTML sink, agent-browser, observed vs validated, PP)",
-    "ghost_skills: blockchain-security=$(Test-Path (Join-Path $skillsRoot 'blockchain-security')) bitcoin-puzzle=$(Test-Path (Join-Path $skillsRoot 'bitcoin-puzzle'))",
     "FAIL_COUNT=$($fail.Count)",
     "ScratchDir=$ScratchDir"
 )

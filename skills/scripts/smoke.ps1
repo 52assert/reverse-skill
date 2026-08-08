@@ -121,16 +121,6 @@ if (-not (Test-Path -LiteralPath $mr)) {
 }
 $routeSummary -join [Environment]::NewLine | Set-Content (Join-Path $LogDir '03-route-summary.txt') -Encoding UTF8
 
-# --- 4) must-not product modules under skills/ ---
-foreach ($ghost in @('blockchain-security', 'bitcoin-puzzle')) {
-    $gp = Join-Path $skillsRoot $ghost
-    if (Test-Path -LiteralPath $gp) {
-        Bad ("core must not contain skills/{0}" -f $ghost)
-    } else {
-        Ok ("no skills/{0}" -f $ghost)
-    }
-}
-
 # --- summary ---
 $summary = @(
     "VERIFY_EXIT=$verifyExit",

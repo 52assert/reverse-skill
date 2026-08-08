@@ -147,7 +147,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "<skill-root>\scripts\bootst
 
 > JEB Pro 已登记为**手动许可安装**能力：bootstrap 只输出指引，绝不下载或规避商业许可。Reqable MCP 仅登记固定版本的官方运行时，仍需要用户自行安装 Reqable 桌面客户端。
 >
-> 清单中未登记的工具（如 unblob/EMBA/Foundry 等）`MUST` 在 skill 文档中走手动安装步骤，禁止假装可 bootstrap。
+> 清单中未登记的工具（如 unblob/EMBA 等）`MUST` 在 skill 文档中走手动安装步骤，禁止假装可 bootstrap。
 
 自举完成后会自动刷新 `tool-index`。
 

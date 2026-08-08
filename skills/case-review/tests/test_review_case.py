@@ -177,6 +177,21 @@ class ReviewCaseTests(unittest.TestCase):
             result = REVIEW_CASE.review_case(root)
             self.assertFalse(any(item["code"] == "workitem.status" for item in result["issues"]))
 
+    def test_windows_drive_path_is_parsed_as_scope_asset(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write_case(root)
+            scope = root / "scope.md"
+            scope.write_text(
+                scope.read_text(encoding="utf-8")
+                .replace("  - sample.bin", r"  - D:\reverse-skill")
+                .replace("- mode: offline", "- mode: lab_only"),
+                encoding="utf-8",
+            )
+            result = REVIEW_CASE.review_case(root)
+            self.assertEqual(result["scope"]["assets"], [r"D:\reverse-skill"])
+            self.assertFalse(any(item["code"] == "scope.assets_missing" for item in result["issues"]))
+
 
 if __name__ == "__main__":
     unittest.main()
