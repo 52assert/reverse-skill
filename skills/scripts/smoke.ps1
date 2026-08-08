@@ -16,7 +16,8 @@ if (-not $PackageRoot) { $PackageRoot = Split-Path -Parent $skillsRoot }
 
 if ([string]::IsNullOrWhiteSpace($LogDir)) {
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $LogDir = Join-Path $env:TEMP ("rs-smoke-{0}" -f $stamp)
+    $tmpBase = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
+    $LogDir = Join-Path $tmpBase ("rs-smoke-{0}" -f $stamp)
 }
 New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
 
@@ -51,7 +52,12 @@ $scripts = @(
     'refresh-tool-index.ps1',
     'smoke.ps1',
     'append-evidence.ps1',
-    'case-guard.ps1'
+    'case-guard.ps1',
+    'test-routing.ps1',
+    'extract-summaries.ps1',
+    'install-global.ps1',
+    'uninstall-global.ps1',
+    'install-opencode.ps1'
 )
 $parseOk = 0
 $parseFail = 0

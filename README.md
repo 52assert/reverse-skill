@@ -122,9 +122,7 @@ Platform-specific docs:
 
 ## Usage
 
-### Supported scenarios
-
-| Scenario | Entry |
+### Supported scenarios| Scenario | Entry |
 |----------|-------|
 | APK / Android analysis | `skills/apk-reverse/` |
 | iOS / mobile | `skills/mobile-reverse/` |
@@ -156,10 +154,43 @@ Platform-specific docs:
 | [skills/MASTER-ROUTING.md](skills/MASTER-ROUTING.md) | PRIMARY fast ladder |
 | [skills/routing.md](skills/routing.md) | Task → skill routing matrix |
 | [skills/SKILL.md](skills/SKILL.md) | Master entry point |
+| [skills/INDEX.md](skills/INDEX.md) | Auto-generated skill navigation index (41 modules) |
+| [skills/config/routing.json](skills/config/routing.json) | **Routing single source of truth** (R0–R39 keyword rules) |
 | [skills/tool-index.md](skills/tool-index.md) | Local tool status (auto-generated) |
-| [skills/scripts/master-route.ps1](skills/scripts/master-route.ps1) | One-shot PRIMARY triage |
+| [skills/scripts/master-route.ps1](skills/scripts/master-route.ps1) | One-shot PRIMARY triage (reads routing.json) |
 | [skills/scripts/case-init.ps1](skills/scripts/case-init.ps1) | Case dir: scope / timeline / workitems |
+| [skills/scripts/test-routing.ps1](skills/scripts/test-routing.ps1) | Routing regression runner (162 benchmark cases) |
+| [skills/scripts/verify-routing-coherence.ps1](skills/scripts/verify-routing-coherence.ps1) | Structure + supply-chain pin gate checks |
+| [skills/scripts/extract-summaries.ps1](skills/scripts/extract-summaries.ps1) | Regenerates INDEX.md from skill frontmatter |
+| [skills/scripts/install-global.ps1](skills/scripts/install-global.ps1) | **Opt-in** global routing injection (standalone files, reversible) |
+| [skills/scripts/uninstall-global.ps1](skills/scripts/uninstall-global.ps1) | Remove global routing injection (zero residue) |
+| [skills/scripts/install-opencode.ps1](skills/scripts/install-opencode.ps1) | opencode integration check + install |
+| [opencode.jsonc](opencode.jsonc) | opencode project config (skills.paths + MCP registry) |
+| [AGENTS.md](AGENTS.md) | opencode project entry |
 | [skills/ops/](skills/ops/) | Scope, Evidence chain, roles, timeline (skill-router form) |
+
+### Testing (run after any routing/config change)
+
+```powershell
+# 1. Routing regression — 162 (hint → expected PRIMARY) cases, fails CI on any mismatch
+powershell -NoProfile -ExecutionPolicy Bypass -File skills/scripts/test-routing.ps1
+# 2. Structure coherence + supply-chain pin gate (unpinned auto-install fails)
+powershell -NoProfile -ExecutionPolicy Bypass -File skills/scripts/verify-routing-coherence.ps1
+# 3. Smoke: verify + script parse + quick route matrix
+powershell -NoProfile -ExecutionPolicy Bypass -File skills/scripts/smoke.ps1
+# 4. INDEX.md drift check (regenerate with extract-summaries.ps1 if dirty)
+powershell -NoProfile -ExecutionPolicy Bypass -File skills/scripts/extract-summaries.ps1 -Check
+```
+
+GitHub Actions CI runs all of the above on **Windows + Ubuntu** for every push/PR.
+
+### opencode integration
+
+- 42 module `SKILL.md` files register as opencode skills via `opencode.jsonc` → `skills.paths`
+- MCP servers (jshookmcp / burpsuite / anything-analyzer / idapro / ghidra) pre-registered, **disabled by default** — flip `enabled: true` per service in `opencode.jsonc` when needed
+- `AGENTS.md` is the opencode project entry; `.opencode/agent/reverse-router.md` is a routing-triage subagent
+- One-shot check/install: `powershell -File skills/scripts/install-opencode.ps1`
+- Global routing injection is **opt-in and reversible** (`install-global.ps1` / `uninstall-global.ps1`) — standalone files, never silently appends to your existing CLAUDE.md / AGENTS.md
 
 ### Repository layout
 

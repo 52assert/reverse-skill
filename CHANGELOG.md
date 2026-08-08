@@ -5,6 +5,29 @@ All notable changes to **reverse-skill** are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-08-02
+
+### Added
+
+- **Routing single source of truth** — `skills/config/routing.json` (R0–R39 keyword rules with `must` / `mustAll` / `exclude` semantics). `master-route.ps1` now reads this file; hardcoded routing tables removed from scripts. Routing knowledge lives in one place.
+- **Routing regression benchmark** — `skills/tests/routing-benchmark.json` (162 bilingual cases, 40 quick) + `skills/scripts/test-routing.ps1` runner. Any routing change must keep the benchmark green.
+- **Routing keyword coverage expansion** (benchmark-driven): burp suite family, pcap/wireshark, root-detection/certificate-pinning, buffer overflow, `.so`/native/JNI, go binaries (中文), js-encrypt, webshell, privilege escalation, S3/object storage, memory dump, incident response, Bluetooth/BLE, USB, Unity/game reverse, security assessment, and more.
+- **Supply-chain pin gate** — `verify-routing-coherence.ps1` now fails on any auto-install capability lacking `pinnedVersion` / `pinnedCommit` / `pinPolicy` / asset hash. Pinned: frida-tools 14.10.4, pwntools 4.15.0, agent-browser 0.31.1, ida-pro-mcp @commit, SecLists/ProxyCat @commit, nuclei v3.9.0; winget sources annotated with `winget-latest` policy.
+- **Opt-in global injection** — `install-global.ps1` (interactive confirm) writes **standalone** routing files (`~/.claude/reverse-skill-routing.md`; opencode `AGENTS.md` marker-wrapped `@include`); `uninstall-global.ps1` / `uninstall-global.sh` remove with zero residue. `RULES.md`/`RULES_zh.md` updated: AI must never silently modify user global config.
+- **opencode ecosystem support** — `opencode.jsonc` (42 skills registered via `skills.paths` + 5 MCP servers disabled-by-default), `AGENTS.md` project entry, `.opencode/agent/reverse-router.md` routing-triage subagent, `install-opencode.ps1` one-shot check/install.
+- **Skill navigation index** — `skills/INDEX.md` auto-generated from SKILL.md frontmatter by `extract-summaries.ps1` (`-Check` mode for CI drift detection).
+- **CI pipeline** — `.github/workflows/ci.yml`: windows + ubuntu matrix (powershell shim for Linux) running test-routing / verify / smoke / INDEX check / JSON validation, plus opencode integration check and `bash -n` syntax check.
+- **Example case** — `examples/ctf-demo/` full workflow walkthrough (route → scope gate → timeline → evidence → report).
+- **frontmatter completion** — `dsl-vm-reverse/SKILL.md` gained name/description frontmatter (was the only module missing it).
+
+### Fixed
+
+- **Upstream mixed-EOL files** — 3 markdown files committed with CRLF while `.gitattributes` declares `*.md eol=lf`; normalized to LF so `git status` stays clean on fresh clones.
+
+### Security
+
+- Global injection no longer appends to existing `CLAUDE.md`; opencode marker block is regex-scoped and removable.
+
 ## [Unreleased]
 
 ### Fixed

@@ -14,7 +14,8 @@ $skillsRoot = Split-Path -Parent $scriptDir
 if (-not $PackageRoot) { $PackageRoot = Split-Path -Parent $skillsRoot }
 
 if ([string]::IsNullOrWhiteSpace($ScratchDir)) {
-    $ScratchDir = Join-Path $env:TEMP ('rs-p0-test-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
+    $tmpBase = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
+    $ScratchDir = Join-Path $tmpBase ('rs-p0-test-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
 }
 New-Item -ItemType Directory -Path $ScratchDir -Force | Out-Null
 

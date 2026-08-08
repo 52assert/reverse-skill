@@ -135,7 +135,8 @@ $primary = 'reverse-engineering/SKILL.md'
 $primaryId = 'R0'
 $routeScript = Join-Path $scriptDir 'master-route.ps1'
 if ((Test-Path $routeScript) -and $Hint) {
-    $tmp = Join-Path $env:TEMP ("case-init-route-" + [guid]::NewGuid().ToString('n'))
+    $tmpBase = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
+    $tmp = Join-Path $tmpBase ("case-init-route-" + [guid]::NewGuid().ToString('n'))
     try {
         & powershell -NoProfile -ExecutionPolicy Bypass -File $routeScript -Hint $Hint -OutDir $tmp 2>$null | Out-Null
         $scopeRoute = Join-Path $tmp 'route-scope.md'
