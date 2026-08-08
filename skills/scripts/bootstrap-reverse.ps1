@@ -898,7 +898,19 @@ function Ensure-GitCloneInstall {
         [Parameter(Mandatory = $true)][string]$TargetPath
     )
 
+    $pinnedCommit = if ($Definition.PSObject.Properties['pinnedCommit']) { [string]$Definition.pinnedCommit } else { '' }
+    $git = Get-FirstCommandPath -Names @('git')
+    if ([string]::IsNullOrWhiteSpace($git)) {
+        throw "Cannot clone $($Definition.repo) because git is not available."
+    }
+
     if ((Test-Path -LiteralPath $TargetPath -PathType Container) -and (Test-Path -LiteralPath (Join-Path $TargetPath '.git'))) {
+        if (-not [string]::IsNullOrWhiteSpace($pinnedCommit)) {
+            $currentCommit = (& $git -C $TargetPath rev-parse HEAD).Trim()
+            if ($LASTEXITCODE -ne 0 -or $currentCommit -ne $pinnedCommit) {
+                throw "Existing checkout is not at pinned commit $pinnedCommit. Move it aside explicitly, then retry: $TargetPath"
+            }
+        }
         return $true
     }
 
@@ -909,14 +921,21 @@ function Ensure-GitCloneInstall {
 
     Ensure-DownloadDirectory -Path (Split-Path -Path $TargetPath -Parent)
 
-    $git = Get-FirstCommandPath -Names @('git')
-    if ([string]::IsNullOrWhiteSpace($git)) {
-        throw "Cannot clone $($Definition.repo) because git is not available."
+    if ([string]::IsNullOrWhiteSpace($pinnedCommit)) {
+        & $git clone --depth 1 $Definition.repo $TargetPath
+        if ($LASTEXITCODE -ne 0) {
+            throw "git clone failed for $($Definition.repo)"
+        }
     }
-
-    & $git clone --depth 1 $Definition.repo $TargetPath
-    if ($LASTEXITCODE -ne 0) {
-        throw "git clone failed for $($Definition.repo)"
+    else {
+        & $git init --quiet $TargetPath
+        & $git -C $TargetPath remote add origin $Definition.repo
+        & $git -C $TargetPath fetch --depth 1 origin $pinnedCommit
+        & $git -C $TargetPath checkout --quiet --detach FETCH_HEAD
+        $resolvedCommit = (& $git -C $TargetPath rev-parse HEAD).Trim()
+        if ($LASTEXITCODE -ne 0 -or $resolvedCommit -ne $pinnedCommit) {
+            throw "Pinned checkout verification failed for $($Definition.repo): expected $pinnedCommit, got $resolvedCommit"
+        }
     }
 
     return $true

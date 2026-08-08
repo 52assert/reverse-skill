@@ -123,6 +123,41 @@ install_npm_global() {
     fi
 }
 
+# Git clone at an immutable commit. Existing mismatched checkouts are rejected
+# instead of being overwritten, so local operator changes are never discarded.
+install_git_commit() {
+    local repo="$1"
+    local commit="$2"
+    local install_dir="$3"
+
+    if [[ -d "$install_dir/.git" ]]; then
+        local current
+        current=$(git -C "$install_dir" rev-parse HEAD 2>/dev/null || true)
+        if [[ "$current" != "$commit" ]]; then
+            log_err "Existing checkout is not at pinned commit $commit: $install_dir"
+            log_err "Move it aside explicitly, then retry; bootstrap will not overwrite local changes."
+            return 1
+        fi
+        return 0
+    fi
+    if [[ -e "$install_dir" ]]; then
+        log_err "Install path exists but is not a git checkout: $install_dir"
+        return 1
+    fi
+
+    mkdir -p "$(dirname "$install_dir")"
+    git init -q "$install_dir"
+    git -C "$install_dir" remote add origin "$repo"
+    git -C "$install_dir" fetch --depth 1 origin "$commit"
+    git -C "$install_dir" checkout -q --detach FETCH_HEAD
+    local resolved
+    resolved=$(git -C "$install_dir" rev-parse HEAD)
+    if [[ "$resolved" != "$commit" ]]; then
+        log_err "Pinned checkout verification failed (expected $commit, got $resolved)"
+        return 1
+    fi
+}
+
 # GitHub Release 下载并解压。
 # Args: repo asset_regex install_dir [release_tag] [expected_sha256]
 install_github_release() {
@@ -460,14 +495,24 @@ ensure_capability() {
 
         # ─── pip 安装 ───
         frida|frida-ps)
-            install_pip_package "frida-tools"
+            install_pip_package "frida-tools==14.10.4"
             ;;
         idalib-mcp)
-            install_pip_package "ida-pro-mcp" "git+https://github.com/mrexodia/ida-pro-mcp.git"
+            install_pip_package "ida-pro-mcp" "git+https://github.com/mrexodia/ida-pro-mcp.git@f82e6e2517a161b77e738951c3071cd446480ba0"
             log_info "运行 ida-pro-mcp --install 完成 IDA 插件安装"
             ;;
         proxycat)
-            install_pip_package "proxycat"
+            local proxycat_dir="$HOME/tools/ProxyCat"
+            install_git_commit \
+                "https://github.com/honmashironeko/ProxyCat.git" \
+                "2309b713e2e4f574df14c2ace7e8fa6c00eb6941" \
+                "$proxycat_dir"
+            pip3 install --upgrade -r "$proxycat_dir/requirements.txt" --break-system-packages 2>/dev/null \
+                || pip3 install --upgrade -r "$proxycat_dir/requirements.txt"
+            log_info "ProxyCat source installed at $proxycat_dir (run: python3 $proxycat_dir/ProxyCat.py)"
+            ;;
+        pwntools)
+            install_pip_package "pwntools==4.15.0"
             ;;
 
         # ─── GitHub Release ───
@@ -487,9 +532,9 @@ ensure_capability() {
         nuclei)
             if command -v go &>/dev/null; then
                 log_info "go install nuclei ..."
-                go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+                go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@v3.8.0
             else
-                install_github_release "projectdiscovery/nuclei" "^nuclei_.*_linux_amd64\\.zip$" "$HOME/tools/nuclei"
+                install_github_release "projectdiscovery/nuclei" "^nuclei_.*_linux_amd64\\.zip$" "$HOME/tools/nuclei" "v3.8.0"
             fi
             ;;
 
@@ -531,7 +576,7 @@ ensure_capability() {
             if ! command -v node &>/dev/null; then
                 install_apt_package "nodejs"
             fi
-            install_npm_global "agent-browser"
+            install_npm_global "agent-browser@0.31.1"
             npx playwright install chromium 2>/dev/null || true
             ;;
 

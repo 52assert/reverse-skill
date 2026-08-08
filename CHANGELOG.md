@@ -47,6 +47,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Stop each stale IDA MCP process individually before starting a replacement
 - Add Bash case initialization, authorization guard, and a structured router that reads the same `routing.json` as PowerShell
 - Verify Bash routing parity in CI without introducing a client-specific plugin manifest
+- Enforce immutable Kali/Windows bootstrap sources for Frida, IDA MCP, Agent Browser, ProxyCat, Nuclei, and pwntools
 
 
 ### Added
