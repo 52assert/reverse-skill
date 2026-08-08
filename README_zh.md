@@ -232,18 +232,16 @@ GitHub Actions 会在 Windows 与 Ubuntu 上执行同一套核心检查。
       <br />
       <strong>Atlas Cloud</strong>
       <br />
-      <sub>云基础设施赞助方</sub>
+      <sub>大模型服务提供商</sub>
     </td>
   </tr>
 </table>
 
 ### 赞助本项目
 
-如需赞助、提供基础设施支持或开展商务合作，请联系：
-
 <p align="center">
-  <a href="mailto:24781737@qq.com?subject=%5BSponsorship%5D%20reverse-skill">
-    <img src="https://img.shields.io/badge/%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6-24781737%40qq.com-0A66C2?style=for-the-badge&logo=maildotru&logoColor=white" alt="发送邮件 — 24781737@qq.com" />
+  <a href="mailto:ww7517437@gmail.com?subject=%5BSponsorship%5D%20reverse-skill">
+    <img src="https://img.shields.io/badge/%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6-ww7517437%40gmail.com-0A66C2?style=for-the-badge&logo=gmail&logoColor=white" alt="发送邮件 — ww7517437@gmail.com" />
   </a>
 </p>
 
@@ -296,7 +294,7 @@ GitHub Actions 会在 Windows 与 Ubuntu 上执行同一套核心检查。
 
 ## 联系方式
 
-- **邮箱**：[24781737@qq.com](mailto:24781737@qq.com)
+- **邮箱**：[ww7517437@gmail.com](mailto:ww7517437@gmail.com)
 - **QQ 群**：942400892
 - **Discord**：[reverse-skill 社区](https://discord.gg/TECd3bMRR)
 - **问题反馈**：[GitHub Issues](https://github.com/zhaoxuya520/reverse-skill/issues)

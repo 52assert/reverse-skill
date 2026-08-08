@@ -237,18 +237,16 @@ Sponsorship helps maintain routing benchmarks, cross-platform CI, documentation,
       <br />
       <strong>Atlas Cloud</strong>
       <br />
-      <sub>Cloud infrastructure sponsor</sub>
+      <sub>Large language model service provider</sub>
     </td>
   </tr>
 </table>
 
 ### Sponsor this project
 
-For sponsorship, infrastructure support, or business collaboration, contact:
-
 <p align="center">
-  <a href="mailto:24781737@qq.com?subject=%5BSponsorship%5D%20reverse-skill">
-    <img src="https://img.shields.io/badge/Email%20us-24781737%40qq.com-0A66C2?style=for-the-badge&logo=maildotru&logoColor=white" alt="Email us — 24781737@qq.com" />
+  <a href="mailto:ww7517437@gmail.com?subject=%5BSponsorship%5D%20reverse-skill">
+    <img src="https://img.shields.io/badge/Email%20us-ww7517437%40gmail.com-0A66C2?style=for-the-badge&logo=gmail&logoColor=white" alt="Email us — ww7517437@gmail.com" />
   </a>
 </p>
 
