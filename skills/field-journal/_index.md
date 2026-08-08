@@ -57,6 +57,10 @@
 
 - [[种子] seed-009_ios-jailbreak-detect-bypass](./seed-009_ios-jailbreak-detect-bypass.md)
 
+### 工具链与环境
+
+- [2026-07-20_reverse-toolchain-windows-bootstrap](./2026-07-20_reverse-toolchain-windows-bootstrap.md)
+
 ### 其他
 
 - [[种子] seed-012_log4shell-jndi-rce](./seed-012_log4shell-jndi-rce.md)
