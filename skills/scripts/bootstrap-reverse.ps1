@@ -184,15 +184,40 @@ function Get-AnythingAnalyzerUserDataPaths {
 function Ensure-AnythingAnalyzerMcpConfig {
     param([int]$Port = 23816)
 
-    $tokenBytes = New-Object byte[] 32
-    (New-Object Security.Cryptography.RNGCryptoServiceProvider).GetBytes($tokenBytes)
-    $generatedToken = [Convert]::ToBase64String($tokenBytes)
+    $token = ''
+    foreach ($userDataPath in Get-AnythingAnalyzerUserDataPaths) {
+        $configPath = Join-Path $userDataPath 'mcp-server-config.json'
+        if (-not (Test-Path -LiteralPath $configPath)) {
+            continue
+        }
+        try {
+            $existing = Get-Content -LiteralPath $configPath -Raw -Encoding utf8 | ConvertFrom-Json
+            if (-not [string]::IsNullOrWhiteSpace([string]$existing.authToken)) {
+                $token = [string]$existing.authToken
+                break
+            }
+        }
+        catch {
+            $token = ''
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace($token)) {
+        $tokenBytes = New-Object byte[] 32
+        $rng = [Security.Cryptography.RandomNumberGenerator]::Create()
+        try {
+            $rng.GetBytes($tokenBytes)
+        }
+        finally {
+            $rng.Dispose()
+        }
+        $token = [Convert]::ToBase64String($tokenBytes)
+    }
 
     $payload = [ordered]@{
         enabled     = $true
         port        = $Port
         authEnabled = $true
-        authToken   = $generatedToken
+        authToken   = $token
     }
 
     foreach ($userDataPath in Get-AnythingAnalyzerUserDataPaths) {
@@ -202,6 +227,8 @@ function Ensure-AnythingAnalyzerMcpConfig {
         $configPath = Join-Path $userDataPath 'mcp-server-config.json'
         $payload | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $configPath -Encoding utf8
     }
+
+    return $token
 }
 
 function Test-VsBuildToolsInstalled {
@@ -678,11 +705,23 @@ function Ensure-McpServer {
         switch ($target) {
             'Claude' {
                 $config = Get-ClaudeMcpConfig
-                $config.json.mcpServers[$ServerName] = $ServerDefinition
+                $claudeDefinition = @{}
+                foreach ($key in $ServerDefinition.Keys) {
+                    if ($key -ne 'bearer_token_env_var') {
+                        $claudeDefinition[$key] = $ServerDefinition[$key]
+                    }
+                }
+                $config.json.mcpServers[$ServerName] = $claudeDefinition
                 Save-ClaudeMcpConfig -Config $config
             }
             'Codex' {
-                Set-CodexMcpServer -ServerName $ServerName -ServerDefinition $ServerDefinition
+                $codexDefinition = @{}
+                foreach ($key in $ServerDefinition.Keys) {
+                    if ($key -ne 'headers') {
+                        $codexDefinition[$key] = $ServerDefinition[$key]
+                    }
+                }
+                Set-CodexMcpServer -ServerName $ServerName -ServerDefinition $codexDefinition
             }
         }
     }
@@ -729,7 +768,14 @@ function Wait-ForPort {
 }
 
 function Start-AnythingAnalyzerService {
-    param([Parameter(Mandatory = $true)]$Definition)
+    param(
+        [Parameter(Mandatory = $true)]$Definition,
+        [string]$AuthToken = ''
+    )
+
+    if ([string]::IsNullOrWhiteSpace($AuthToken)) {
+        $AuthToken = Ensure-AnythingAnalyzerMcpConfig -Port ([int]$Definition.servicePort)
+    }
 
     if (Test-ReverseTcpPort -Port ([int]$Definition.servicePort)) {
         return
@@ -766,8 +812,6 @@ if (Test-ReverseIsWindows) {
         }
         $repoDir = $installDir
     }
-
-    Ensure-AnythingAnalyzerMcpConfig -Port ([int]$Definition.servicePort)
 
     $pnpm = Get-NodeCommandPath -Name 'pnpm'
     if ([string]::IsNullOrWhiteSpace($pnpm)) {
@@ -993,9 +1037,22 @@ function Ensure-Capability {
         }
         'local-http-mcp' {
             if ($Name -eq 'anything-analyzer') {
-                Ensure-McpServer -ServerName 'anything-analyzer' -ServerDefinition @{ url = $definition.mcpUrl }
+                $authToken = Ensure-AnythingAnalyzerMcpConfig -Port ([int]$definition.servicePort)
+                $env:ANYTHING_ANALYZER_MCP_TOKEN = $authToken
+                try {
+                    [Environment]::SetEnvironmentVariable('ANYTHING_ANALYZER_MCP_TOKEN', $authToken, 'User')
+                }
+                catch {
+                    Write-Warning "Could not persist ANYTHING_ANALYZER_MCP_TOKEN for future MCP clients: $($_.Exception.Message)"
+                }
+                $serverDefinition = @{
+                    url                  = $definition.mcpUrl
+                    headers              = @{ Authorization = "Bearer $authToken" }
+                    bearer_token_env_var = 'ANYTHING_ANALYZER_MCP_TOKEN'
+                }
+                Ensure-McpServer -ServerName 'anything-analyzer' -ServerDefinition $serverDefinition
                 if ($StartServices) {
-                    Start-AnythingAnalyzerService -Definition $definition
+                    Start-AnythingAnalyzerService -Definition $definition -AuthToken $authToken
                 }
                 return $true
             }
