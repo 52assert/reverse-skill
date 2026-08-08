@@ -6,9 +6,9 @@
 
 ## 统计
 
-- 真实项目数：13
+- 真实项目数：16
 - 种子参考数：17
-- 总条目数：30
+- 总条目数：33
 
 ## 按场景分类
 
@@ -21,6 +21,7 @@
 
 - [2026-08-07 闭源 Rust cdylib 差分复现: 核心算法/LED 灯光字节码/打包器/operations 全逐位一致](./2026-08-07_closed-rust-cdylib-diff-reimpl.md)
 - [2026-08-06_cortex-m-msc-firmware-self-keyed-rotate-xor](./2026-08-06_cortex-m-msc-firmware-self-keyed-rotate-xor.md)
+- [2026-07-22 Electron Bytenode 特权更新链分析](./2026-07-22_electron-bytenode-privileged-update-chain.md)
 - [2026-07-14_android-arm64-self-extract-source-recovery](./2026-07-14_android-arm64-self-extract-source-recovery.md)
 - [2026-05-15_lumine-go-reverse](./2026-05-15_lumine-go-reverse.md)
 - [[种子] seed-001_elf-packed-loader](./seed-001_elf-packed-loader.md)
@@ -32,6 +33,7 @@
 
 ### Web / API / 渗透测试
 
+- [2026-08-01 Next.js CDK 契约保真本地重建](./2026-08-01_nextjs-cdk-contract-faithful-local-reconstruction.md)
 - [2026-08-01_pentest-encryption-oracle-public-template-sql-admin-takeover: .NET CMS 通用加密 oracle、公开密文模板消费者、完整 STL/模板解析、原始 SQL `UPDATE RETURNING`、官方管理员验证器新旧口令差分与隔离 PostgreSQL 清理闭环](./2026-08-01_pentest-encryption-oracle-public-template-sql-admin-takeover.md)
 
 - [2026-07-18_gin-juice-client-friction](./2026-07-18_gin-juice-client-friction.md)
